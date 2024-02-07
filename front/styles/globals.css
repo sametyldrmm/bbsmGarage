@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+    background: #ebebeb
+    ;
+}
+
+.toast {
+    position: absolute;
+  }
+
+.divider{
+    height: 1rem;
+}
+
+.wrapper{
+    display:grid;
+    height:100vh;
+    place-items:center
+  }

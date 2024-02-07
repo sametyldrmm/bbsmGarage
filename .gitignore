@@ -1,0 +1,8 @@
+# NestJS
+back/dist
+back/node_modules
+
+
+# Next.js
+front/.next
+front/node_modules
