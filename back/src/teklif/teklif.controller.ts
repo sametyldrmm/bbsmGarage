@@ -2,14 +2,14 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException 
 import { TeklifService } from './teklif.service';
 import { CreateTeklifDto } from './dto/create-teklif.dto';
 import { UpdateTeklifDto } from './dto/update-teklif.dto';
-import { TeklifEntity } from './entities/teklif.entity';
+import { UpdateYapilanlarDto } from '../yapilanlar/dto/update-yapilanlar.dto'; // Güncellenmiş import yolu
 
 @Controller('teklif')
 export class TeklifController {
   constructor(private readonly teklifService: TeklifService) {}
 
   @Post()
-  create(@Body() createTeklifDto: TeklifEntity) {
+  create(@Body() createTeklifDto: CreateTeklifDto) {
     if (isNaN(createTeklifDto.km)) {
       throw new BadRequestException('km için geçersiz integer değeri');
     }
@@ -32,6 +32,11 @@ export class TeklifController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateTeklifDto: UpdateTeklifDto) {
     return this.teklifService.update(+id, updateTeklifDto);
+  }
+
+  @Patch(':id/yapilanlar')
+  updateYapilanlar(@Param('id') id: string, @Body() updateYapilanlarDto: UpdateYapilanlarDto[]) {
+    return this.teklifService.updateYapilanlar(+id, updateYapilanlarDto);
   }
 
   @Delete(':id')

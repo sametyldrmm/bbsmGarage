@@ -30,8 +30,8 @@ export class CardEntity {
   @Column({ type: 'text', nullable: true })
   renk: string;
 
-  @Column({ type: 'date', nullable: true })
-  girisTarihi: Date;
+  @Column({ type: 'text', nullable: true })
+  girisTarihi: string;
 
   @Column({ type: 'text', nullable: true })
   notlar: string;
@@ -40,7 +40,7 @@ export class CardEntity {
   @Column({ type: 'text', nullable: true })
   adres: string;
 
-  @OneToMany(() => YapilanlarEntity, yapilan => yapilan.card ,{ nullable: true , cascade: true, onDelete: "CASCADE" })
+  @OneToMany(() => YapilanlarEntity, yapilan => yapilan.card ,{ nullable: true , cascade: true, onDelete: 'CASCADE' })
   yapilanlar: YapilanlarEntity[];
 
 }

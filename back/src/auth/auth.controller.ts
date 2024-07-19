@@ -1,32 +1,31 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Headers } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { log } from 'console';
-import { AuthEntity } from './auth.entity';
 import { AuthDto } from './auth.dto';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly databaseService : AuthService ) {}
-  
+  constructor(private readonly authService: AuthService) {}
+
   @Get()
   getAll() {
-    log("asd");
-    return this.databaseService.findAll();
+    return this.authService.findAll();
   }
 
   @Post()
-  setOne(@Body() Auth : AuthDto )
-  {
-    return this.databaseService.addOne(Auth );
+  setOne(@Body() authDto: AuthDto) {
+    return this.authService.addOne(authDto);
   }
 
-  @Post("control")
-  setController(@Body() Auth : AuthDto )
-  {
-
-    const a =  this.databaseService.findUserPass(Auth);
-    return a;
+  @Post('control')
+  async setController(@Body() authDto: AuthDto) {
+    return this.authService.findUserPass(authDto);
   }
 
-
+  @UseGuards(JwtAuthGuard)
+  @Get('refresh')
+  async refresh(@Headers('authorization') authorization: string) {
+    const token = authorization.replace('Bearer ', '');
+    return this.authService.refreshToken(token);
+  }
 }

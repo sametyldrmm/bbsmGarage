@@ -2,6 +2,7 @@ import { CreateYapilanlarDto } from "src/yapilanlar/dto/create-yapilanlar.dto";
 
 export class CreateTeklifDto {
     
+    teklif_id : number;
     adSoyad: string;
     telNo: string;
     markaModel: string;
@@ -10,7 +11,7 @@ export class CreateTeklifDto {
     modelYili: number;
     sasi: string;
     renk: string;
-    girisTarihi: Date;
+    girisTarihi: string;
     notlar: string;
     adres: string;
     yapilanlar: CreateYapilanlarDto[];

@@ -11,7 +11,7 @@ export class CreateCardDto {
     modelYili: number;
     sasi: string;
     renk: string;
-    girisTarihi: Date;
+    girisTarihi: string;
     notlar: string;
     adres: string;
     yapilanlar: CreateYapilanlarDto[];

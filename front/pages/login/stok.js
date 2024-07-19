@@ -2,19 +2,35 @@ import React, { useEffect, useState } from 'react';
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
-import { fromJSON } from 'postcss';
+import { useLoading } from '../_app';
 
 export default function stok() {
+  const { loading, setLoading } = useLoading();
     const [isOpen, setIsOpen] = useState(false);
     const [stokAdi, setStokAdi] = useState('');
     const [adet, setAdet] = useState('');
     const [eklenisTarihi, setEklenisTarihi] = useState('');
     const [info, setInfo] = useState('');
     const [stokListesi, setStokListesi] = useState([]);
+    const [filteredStokListesi, setFilteredStokListesi] = useState([]);
     const [selectedStok, setSelectedStok] = useState([]);
     const [allChecked, setAllChecked] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
+    const capitalizeFirstLetter = (string) => {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    };
 
+    const handleChange = (e, setter) => {
+        const { value } = e.target;
+        setter(capitalizeFirstLetter(value));
+    };
+    const capitalizeWords = (string) => {
+      return string.split(' ').map(word => {
+        return word.charAt(0).toLocaleUpperCase('tr-TR') + word.slice(1).toLocaleLowerCase('tr-TR');
+      }).join(' ');
+    };
+    
 
     var requestOptions = {
       method: 'GET',
@@ -22,14 +38,17 @@ export default function stok() {
     };
     
     const fetchStokListesi = () => {
+      setLoading(true);
       fetch("http://localhost:4000/stok", requestOptions)
           .then(response => response.json())
           .then(data => {
               if (Array.isArray(data)) {
                   setStokListesi(data);
+                  setFilteredStokListesi(data);
               }
           })
           .catch(error => console.log('error', error));
+          setLoading(false);
       };
 
       useEffect(() => {
@@ -37,6 +56,7 @@ export default function stok() {
       }, []);
 
       const handleSubmit = async (e) => {
+        setLoading(true);
           e.preventDefault();
           const yeniStok = {
               "stokAdi": stokAdi,
@@ -69,9 +89,11 @@ export default function stok() {
           } catch (error) {
               console.error('Stok ekleme hatası', error);
           }
+          setLoading(false);
       };
       
     const handleClearItems = async () => {
+      setLoading(true);
       try {
         // Seçilen her bir stok ID'si için ayrı bir DELETE isteği gönder
         const deleteRequests = selectedStok.map(id =>
@@ -82,10 +104,12 @@ export default function stok() {
         // UI'dan silinen öğeleri kaldır
         const updatedStokListesi = stokListesi.filter(stok => !selectedStok.includes(stok.id));
         setStokListesi(updatedStokListesi);
+        setFilteredStokListesi(updatedStokListesi);
         setSelectedStok([]); // Seçimleri sıfırla
       } catch (error) {
         console.error('Silme işlemi sırasında hata oluştu', error);
       }
+      setLoading(false);
     };
 
     const toggleMenu = () => {
@@ -104,13 +128,19 @@ export default function stok() {
       setAllChecked(e.target.checked);
       setSelectedStok(e.target.checked ? stokListesi.map(stok => stok.id) : []);
     };
+
+    const handleSearch = (e) => {
+      const term = e.target.value.toLowerCase();
+      setSearchTerm(term);
+      setFilteredStokListesi(stokListesi.filter(stok => stok.stokAdi.toLowerCase().includes(term) || stok.info.toLowerCase().includes(term)));
+    };
     
   
     return (
       <>
         <Head>
-          <title>ESES Garage - Stok Takibi</title>
-          <link rel="icon" href="/ESES.ico" /> {"/public/ESES.ico"}
+          <title>BBSM Garage - Stok Takibi</title>
+          <link rel="icon" href="/BBSM.ico" /> {"/public/BBSM.ico"}
         </Head>
 
         <aside className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} bg-white border-r border-gray-200 lg:translate-x-0`} aria-label="Sidebar">
@@ -145,8 +175,8 @@ export default function stok() {
                 <div className="flex items-center">
                   <button onClick={toggleMenu} className={`lg:hidden p-3 font-bold text-lg leading-tight antialiased ${isOpen && 'hidden'}`}><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
                   <a href="#" className="flex ml-2 md:mr-8 lg:mr-24">
-                  <img src="/images/ESESlogo.webp" className="h-8 mr-3" alt="logo" />
-                  <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-my-siyah">ESES GARAGE</span>
+                  <img src="/images/BBSMlogo.webp" className="h-8 mr-3" alt="logo" />
+                  <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-my-siyah">BBSM GARAGE</span>
                   </a>
                 </div>
                 <div className="flex items-center">
@@ -165,20 +195,20 @@ export default function stok() {
                 <div className="grid gap-6 mb-4 md:grid-cols-3">
                   <div>
                     <label htmlFor="text" className="block mb-2 text-sm font-medium text-gray-900">Stok Adı</label>
-                    <input type="text" id="text" className="bg-my-beyaz border border-gray-300 text-gray 900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Stok Adı Giriniz" value={stokAdi} onChange={(e) => setStokAdi(e.target.value)} required/>
+                    <input type="text" id="text" className="bg-my-beyaz border border-gray-300 text-gray 900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Stok Adı Giriniz" value={stokAdi} onChange={(e) => handleChange(e, setStokAdi)} required/>
                   </div>
                   <div>
                       <label htmlFor="number" className="block mb-2 text-sm font-medium text-gray-900 ">Adet</label>
-                      <input type="number" id="text" className="bg-my-beyaz border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Adet Giriniz" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" value={adet}  onChange={(e) =>setAdet(e.target.value)} required/>
+                      <input type="number" id="text" className="bg-my-beyaz border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Adet Giriniz" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" value={adet}  onChange={(e) => handleChange(e, setAdet)} required/>
                   </div>
                   <div>
                       <label htmlFor="date" className="block mb-2 text-sm font-medium text-gray-900 ">Ekleniş Tarihi</label>
-                      <input type="date" id="text" className="bg-my-beyaz border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Ekleniş Tarihi Giriniz" value={eklenisTarihi}  onChange={(e) =>setEklenisTarihi(e.target.value)} required/>
+                      <input type="date" id="text" className="bg-my-beyaz border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Ekleniş Tarihi Giriniz" value={eklenisTarihi}  onChange={(e) => handleChange(e, setEklenisTarihi)} required/>
                   </div>
                 </div>
                 <div className="mb-6">
                     <label htmlFor="text" className="block mb-2 text-sm font-medium text-gray-900">Açıklama</label>
-                    <input type="text" id="text" className="bg-my-beyaz border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Açıklama Giriniz ..." value={info}  onChange={(e) =>setInfo(e.target.value)} required/>
+                    <input type="text" id="text" className="bg-my-beyaz border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Açıklama Giriniz ..." value={info}  onChange={(e) => handleChange(e, setInfo)} required/>
                 </div>
                 <div className="flex justify-end">
                     <button type="submit" className="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm w-full sm:w-auto px-5 py-2.5 text-center">Ekle</button>
@@ -213,7 +243,7 @@ export default function stok() {
                         <div className="absolute inset-y-0 left-0 rtl:inset-r-0 rtl:right-0 flex items-center ps-3 pointer-events-none">
                           <svg className="w-5 h-5 text-gray-500 " aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd"></path></svg>
                         </div>
-                        <input type="text" id="table-search" className="block p-2 ps-10 text-md text-gray-900 border border-gray-300 rounded-full w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Search for items"/>
+                        <input type="text" id="table-search" className="block p-2 ps-10 text-md text-gray-900 border border-gray-300 rounded-full w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Search for items" value={searchTerm} onChange={handleSearch}/>
                       </div>
                     </div>
                   </div>
@@ -241,13 +271,10 @@ export default function stok() {
                     <th scope="col" className="px-6 py-3">
                       Açıklama
                     </th>
-                    <th scope="col" className="px-6 py-3">
-                      Düzenle
-                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {stokListesi.map((stok, index) => (
+                  {filteredStokListesi.map((stok, index) => (
                     <tr key={stok.id || index}>
                       <td className="w-4 p-4">
                         <div className="flex items-center">
@@ -256,7 +283,7 @@ export default function stok() {
                         </div>
                       </td>
                       <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                        {stok.stokAdi}
+                        {capitalizeWords(stok.stokAdi)}
                       </td>
                       <td className="px-6 py-4">
                         {new Date(stok.eklenisTarihi).toLocaleDateString()}
@@ -265,10 +292,12 @@ export default function stok() {
                         {stok.adet}
                       </td>
                       <td className="px-6 py-4 uppercase">
-                        {stok.info}
-                      </td>
-                      <td className="px-6 py-4">
-                        <a href="#" className="bg-gray-200 p-2 pl-4 pr-4 rounded-full font-medium text-my-siyah hover:underline">Düzenle</a>
+                      <textarea
+                        readOnly
+                        value={stok.info}
+                        className="bg-white text-gray-900 text-sm rounded-lg block w-full p-2.5 overflow"
+                        style={{ maxHeight: '120px' }}
+                      />
                       </td>
                     </tr>
                   ))}
@@ -284,4 +313,3 @@ export default function stok() {
     </>
   );
 }
-

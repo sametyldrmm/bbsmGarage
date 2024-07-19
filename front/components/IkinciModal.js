@@ -1,34 +1,33 @@
 import React, { useState } from 'react';
-import './IlkModal.js';
-import './AnaBilesen.js';
 
-const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose , onKartEkle}) => {
+const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose, onKartEkle, onTeklifEkle }) => {
   const [birimAdedi, setBirimAdedi] = useState('');
   const [parcaAdi, setParcaAdi] = useState('');
   const [birimFiyati, setBirimFiyati] = useState('');
   const [yapilanlar, setYapilanlar] = useState([]);
 
   const handleIkinciModalSubmit = () => {
-    if ((!birimAdedi && birimAdedi > 0) || !parcaAdi || (!birimFiyati && birimFiyati > 0)) {
+    const parsedBirimAdedi = parseInt(birimAdedi, 10) || 0;
+    const parsedBirimFiyati = parseFloat(birimFiyati) || 0;
+
+    if (parsedBirimAdedi <= 0 || !parcaAdi || parsedBirimFiyati <= 0) {
       alert("Lütfen tüm alanları doğru bir şekilde doldurun.");
       return;
     }
 
     const ikinciModalBilgiler = {
-      birimAdedi,
+      birimAdedi: parsedBirimAdedi,
       parcaAdi,
-      birimFiyati,
-      toplamFiyat: Number(birimAdedi) * Number(birimFiyati),
+      birimFiyati: parsedBirimFiyati,
+      toplamFiyat: parsedBirimAdedi * parsedBirimFiyati,
     };
     setYapilanlar([...yapilanlar, ikinciModalBilgiler]);
 
-
-    if (birimAdedi && parcaAdi && birimFiyati) {
+    if (parsedBirimAdedi && parcaAdi && parsedBirimFiyati) {
       setBirimAdedi('');
       setParcaAdi('');
       setBirimFiyati('');
     }
-    
   };
 
   const handleSubmit = () => {
@@ -36,24 +35,30 @@ const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose , onKartEkle})
       ...ilkModalBilgi,
       yapilanlar
     };
-    onKartEkle(yeniKart); 
+    onKartEkle(yeniKart);
   };
 
-
+  const handleTeklifEkle = () => {
+    const yeniTeklif = {
+      ...ilkModalBilgi,
+      yapilanlar
+    };
+    onTeklifEkle(yeniTeklif);
+  };
 
   const handleClearItems = () => {
-    setYapilanlar([]); // Tüm öğeleri temizle
+    setYapilanlar([]);
   };
 
   const handleCloseAndClear = () => {
-    handleClearItems(); // İlk olarak formu temizle
+    handleClearItems();
     onClose();
   };
 
   const handleRemoveItem = (index) => {
     const yeniYapilanlar = yapilanlar.filter((_, i) => i !== index);
     setYapilanlar(yeniYapilanlar);
-  };  
+  };
 
   return (
     <div className="fixed inset-0 bg-gray-500 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center backdrop-blur-sm backdrop-brightness-30">
@@ -61,10 +66,10 @@ const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose , onKartEkle})
         <div className="flex justify-between items-center p-5 border-b border-gray-200 ">
           <h3 className="text-xl font-medium text-gray-900">Kart Ekle - Aşama 2</h3>
           <button onClick={handleCloseAndClear}>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
         </div>
         <div className="p-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -99,7 +104,7 @@ const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose , onKartEkle})
               Ekle
             </button>
           </div>
-          <div className="overflow-x-auto mt-6">
+          <div className="overflow-x-auto mt-6 max-h-72">
             <table className="min-w-full text-sm divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -112,23 +117,22 @@ const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose , onKartEkle})
                       Tümünü Sil
                     </button>
                   </th>
-                  
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-              {yapilanlar.map((asd, index) => (
+              <tbody className="bg-white divide-y  divide-gray-200">
+                {yapilanlar.map((asd, index) => (
                   <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap">{asd.birimAdedi}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{asd.parcaAdi}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{asd.birimFiyati}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{asd.toplamFiyat}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                    <button onClick={() => handleRemoveItem(index)} className="text-red-500 hover:text-red-700">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                    </button>
-                  </td>
+                    <td className="px-6 py-1 whitespace-nowrap">{asd.birimAdedi}</td>
+                    <td className="px-6 py-1 whitespace-nowrap">{asd.parcaAdi}</td>
+                    <td className="px-6 py-1 whitespace-nowrap">{asd.birimFiyati}</td>
+                    <td className="px-6 py-1 whitespace-nowrap">{asd.toplamFiyat}</td>
+                    <td className="px-6 py-1 whitespace-nowrap text-center text-sm font-medium">
+                      <button onClick={() => handleRemoveItem(index)} className="text-red-500 hover:text-red-700">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -139,11 +143,10 @@ const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose , onKartEkle})
               Geri Dön
             </button>
             <button className=" bg-green-500 text-white font-semibold text-md rounded-full p-2 pl-4 pr-4 mr-4">
-            {/* onclick eksik */}
+              {/* onclick eksik */}
               Excel İndir
             </button>
-            <button className="bg-my-siyah text-white font-semibold text-md rounded-full p-2 pl-4 pr-4 mr-4"> 
-            {/* onclick eksik */}
+            <button onClick={handleTeklifEkle} className="bg-my-siyah text-white font-semibold text-md rounded-full p-2 pl-4 pr-4 mr-4">
               Teklif Olarak Kaydet
             </button>
             <button onClick={handleSubmit} className="bg-my-mavi text-white font-semibold text-md rounded-full p-2 pl-8 pr-8 mr-4">

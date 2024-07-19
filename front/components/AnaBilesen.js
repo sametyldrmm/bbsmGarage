@@ -2,20 +2,18 @@ import React, { useState } from 'react';
 import IlkModal from './IlkModal';
 import IkinciModal from './IkinciModal';
 
-const AnaBilesen = ({onClose, onKartEkle}) => {
+const AnaBilesen = ({ onClose, onKartEkle, onTeklifEkle }) => {
   const [ilkModalGorunur, setIlkModalGorunur] = useState(true);
   const [ikinciModalGorunur, setIkinciModalGorunur] = useState(false);
   const [girilenBilgi, setGirilenBilgi] = useState('');
 
   const handleIlkModalSubmit = (bilgi) => {
-    // İlk modal submit işlemi sonrasında ikinci modalı aç
     setGirilenBilgi(bilgi);
     setIlkModalGorunur(false);
     setIkinciModalGorunur(true);
   };
 
   const handleIkinciModalClose = () => {
-    // İkinci modal kapatıldığında durumu sıfırla
     setIkinciModalGorunur(false);
     setIlkModalGorunur(true);
   };
@@ -24,6 +22,19 @@ const AnaBilesen = ({onClose, onKartEkle}) => {
     setIkinciModalGorunur(false);
     setIlkModalGorunur(false);
     onClose();
+  };
+
+  const handleKartEkle = (yeniKart) => {
+    const km = parseInt(yeniKart.km, 10) || 0;
+    const modelYili = parseInt(yeniKart.modelYili, 10) || 0;
+
+    const kart = {
+      ...yeniKart,
+      km,
+      modelYili
+    };
+
+    onKartEkle(kart);
   };
 
   return (
@@ -41,7 +52,8 @@ const AnaBilesen = ({onClose, onKartEkle}) => {
           ilkModalBilgi={girilenBilgi}
           onIkinciModalClose={handleIkinciModalClose}
           onClose={handleClose}
-          onKartEkle={onKartEkle}
+          onKartEkle={handleKartEkle}
+          onTeklifEkle={onTeklifEkle}
         />
       )}
     </div>

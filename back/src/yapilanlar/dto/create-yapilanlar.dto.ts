@@ -10,4 +10,5 @@ export class CreateYapilanlarDto {
   parcaAdi: string;
   birimFiyati: number;
   toplamFiyat: number;
+  id: any;
   }
