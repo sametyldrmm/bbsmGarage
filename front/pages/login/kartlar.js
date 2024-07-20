@@ -41,7 +41,7 @@ const Kartlar = () => {
     setLoading(true);
     try {
       const deleteRequests = secilenKartlar.map(kartId =>
-        fetch(`http://localhost:4000/card/${kartId}`, { method: 'DELETE' })
+        fetch(`http://172.31.35.1:4000/card/${kartId}`, { method: 'DELETE' })
       );
       await Promise.all(deleteRequests);
 
@@ -65,7 +65,7 @@ const Kartlar = () => {
   const fetchTeklifListesi = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:4000/teklif", { method: 'GET' });
+      const response = await fetch("http://172.31.35.1:4000/teklif", { method: 'GET' });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -80,7 +80,7 @@ const Kartlar = () => {
   const fetchKartListesi = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:4000/card", { method: 'GET' });
+      const response = await fetch("http://172.31.35.1:4000/card", { method: 'GET' });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -104,7 +104,7 @@ const Kartlar = () => {
   const handleKartEkle = async (yeniKart) => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/card', {
+      const response = await fetch('http://172.31.35.1:4000/card', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ const Kartlar = () => {
 
     try {
       // Teklifi teklif tablosuna ekle
-      const response = await fetch('http://localhost:4000/teklif', {
+      const response = await fetch('http://172.31.35.1:4000/teklif', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -227,7 +227,7 @@ const Kartlar = () => {
                 <button type="button" className="flex items-center text-sm">
                   <span className="sr-only">Open user menu</span>
                   <p className="text-center text-my-siyah font-semibold items-center pr-8">Yasin Ufuk ORHANLAR</p>
-                  <img src="/images/yasin.png" className="h-16 w-16 rounded-full" alt="Yasin Bey" />
+                  <img src="/images/yasin.webp" className="h-16 w-16 rounded-full" alt="Yasin Bey" />
                 </button>
               </div>
             </div>

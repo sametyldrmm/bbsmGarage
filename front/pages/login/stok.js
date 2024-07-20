@@ -39,7 +39,7 @@ export default function stok() {
     
     const fetchStokListesi = () => {
       setLoading(true);
-      fetch("http://localhost:4000/stok", requestOptions)
+      fetch("http://172.31.35.1:4000/stok", requestOptions)
           .then(response => response.json())
           .then(data => {
               if (Array.isArray(data)) {
@@ -97,7 +97,7 @@ export default function stok() {
       try {
         // Seçilen her bir stok ID'si için ayrı bir DELETE isteği gönder
         const deleteRequests = selectedStok.map(id =>
-          fetch(`http://localhost:4000/stok/${id}`, { method: 'DELETE' })
+          fetch(`http://172.31.35.1:4000/stok/${id}`, { method: 'DELETE' })
         );
         await Promise.all(deleteRequests);
     
@@ -180,7 +180,7 @@ export default function stok() {
                   </a>
                 </div>
                 <div className="flex items-center">
-                  <button type="button" className="flex items-center text-sm"><span className="sr-only">Open user menu</span><p className="text-center text-my-siyah font-semibold items-center pr-8">Yasin Ufuk ORHANLAR</p><img src="/images/yasin.png" className="h-16 w-16 rounded-full" alt="Yasin Bey" /></button>
+                  <button type="button" className="flex items-center text-sm"><span className="sr-only">Open user menu</span><p className="text-center text-my-siyah font-semibold items-center pr-8">Yasin Ufuk ORHANLAR</p><img src="/images/yasin.webp" className="h-16 w-16 rounded-full" alt="Yasin Bey" /></button>
                 </div>
               </div>
             </div>

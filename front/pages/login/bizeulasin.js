@@ -54,7 +54,7 @@ export default function bizeulasin() {
                   </a>
                 </div>
                 <div className="flex items-center">
-                  <button type="button" className="flex items-center text-sm"><span className="sr-only">Open user menu</span><p className="text-center text-my-siyah font-semibold items-center pr-8">Yasin Ufuk ORHANLAR</p><img src="/images/yasin.png" className="h-16 w-16 rounded-full" alt="Yasin Bey" /></button>
+                  <button type="button" className="flex items-center text-sm"><span className="sr-only">Open user menu</span><p className="text-center text-my-siyah font-semibold items-center pr-8">Yasin Ufuk ORHANLAR</p><img src="/images/yasin.webp" className="h-16 w-16 rounded-full" alt="Yasin Bey" /></button>
                 </div>
               </div>
             </div>

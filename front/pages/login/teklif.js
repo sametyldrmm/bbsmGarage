@@ -30,7 +30,7 @@ export default function Teklif() {
 
   const fetchTeklifListesi = () => {
     setLoading(true);
-    fetch("http://localhost:4000/teklif", {
+    fetch("http://172.31.35.1:4000/teklif", {
       method: 'GET',
       redirect: 'follow'
     })
@@ -60,7 +60,7 @@ export default function Teklif() {
     setLoading(true);
     try {
       const deleteRequests = secilenTeklifler.map(teklifId =>
-        fetch(`http://localhost:4000/teklif/${teklifId}`, { method: 'DELETE' })
+        fetch(`http://172.31.35.1:4000/teklif/${teklifId}`, { method: 'DELETE' })
       );
       await Promise.all(deleteRequests);
 
@@ -93,7 +93,7 @@ export default function Teklif() {
     };
   
     try {
-      const response = await fetch('http://localhost:4000/card', {
+      const response = await fetch('http://172.31.35.1:4000/card', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ export default function Teklif() {
   
         setTeklifler(teklifler.filter(t => t.teklif_id !== teklif.teklif_id));
   
-        const deleteResponse = await fetch(`http://localhost:4000/teklif/${teklif.teklif_id}`, {
+        const deleteResponse = await fetch(`http://172.31.35.1:4000/teklif/${teklif.teklif_id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -187,7 +187,7 @@ export default function Teklif() {
                 <button type="button" className="flex items-center text-sm">
                   <span className="sr-only">Open user menu</span>
                   <p className="text-center text-my-siyah font-semibold items-center pr-8">Yasin Ufuk ORHANLAR</p>
-                  <img src="/images/yasin.png" className="h-16 w-16 rounded-full" alt="Yasin Bey" />
+                  <img src="/images/yasin.webp" className="h-16 w-16 rounded-full" alt="Yasin Bey" />
                 </button>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import bmwLogo from '../public/images/bmw-logo.png'; // Logonun doğru yolunu burada belirtin
+import bmwLogo from '../public/images/bmw-logo.webp'; // Logonun doğru yolunu burada belirtin
 
 const Loading = () => {
   return (

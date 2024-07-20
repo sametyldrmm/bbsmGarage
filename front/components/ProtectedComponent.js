@@ -7,7 +7,7 @@ const ProtectedComponent = () => {
     const fetchProtectedData = async () => {
       const token = localStorage.getItem('token');
 
-      const response = await fetch('http://localhost:4000/protected', {
+      const response = await fetch('http://172.31.35.1:4000/protected', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
