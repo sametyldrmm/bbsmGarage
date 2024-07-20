@@ -125,7 +125,7 @@ export default function Detay() {
     } catch (error) {
       console.error('Delete yapilan error:', error);
     }
-    c
+    setLoading(false);
   };
 
   useEffect(() => {
