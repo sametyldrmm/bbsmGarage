@@ -21,6 +21,12 @@ export class AuthService {
   }
 
   async findUserPass(database: AuthDto) {
+    console.log(database.username);
+    console.log(database.password);
+    if (database.username == "" || database.password == "")
+    {
+      return null;
+    }
     const result = await this.databaseRepository.find({ 
       
       where: { 
