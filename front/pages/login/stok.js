@@ -39,7 +39,7 @@ export default function stok() {
     
     const fetchStokListesi = () => {
       setLoading(true);
-      fetch("http://172.31.35.1:4000/stok", requestOptions)
+      fetch("http://16.171.148.90:4000/stok", requestOptions)
           .then(response => response.json())
           .then(data => {
               if (Array.isArray(data)) {
@@ -97,7 +97,7 @@ export default function stok() {
       try {
         // Seçilen her bir stok ID'si için ayrı bir DELETE isteği gönder
         const deleteRequests = selectedStok.map(id =>
-          fetch(`http://172.31.35.1:4000/stok/${id}`, { method: 'DELETE' })
+          fetch(`http://16.171.148.90:4000/stok/${id}`, { method: 'DELETE' })
         );
         await Promise.all(deleteRequests);
     

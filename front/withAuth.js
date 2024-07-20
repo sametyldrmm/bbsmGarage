@@ -6,7 +6,7 @@ const MyComponent = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetchWithAuth('http://172.31.35.1:4000/protected-endpoint');
+      const response = await fetchWithAuth('http://16.171.148.90:4000/protected-endpoint');
       if (response && response.ok) {
         const data = await response.json();
       }

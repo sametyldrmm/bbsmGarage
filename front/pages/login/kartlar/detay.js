@@ -68,7 +68,7 @@ export default function Detay() {
   async function fetchData(card_id) {
     setLoading(true);
     try {
-      const response = await fetch(`http://172.31.35.1:4000/card/${card_id}/yapilanlar`, {
+      const response = await fetch(`http://16.171.148.90:4000/card/${card_id}/yapilanlar`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ export default function Detay() {
   const handleDelete = async (id) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://172.31.35.1:4000/yapilanlar/${id}`, {
+      const response = await fetch(`http://16.171.148.90:4000/yapilanlar/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -172,7 +172,7 @@ export default function Detay() {
     };
 
     try {
-      const response = await fetch(`http://172.31.35.1:4000/card/${detay_id}`, {
+      const response = await fetch(`http://16.171.148.90:4000/card/${detay_id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -214,7 +214,7 @@ export default function Detay() {
     }));
 
     try {
-      const response = await fetch(`http://172.31.35.1:4000/card/${detay_id}/yapilanlar`, {
+      const response = await fetch(`http://16.171.148.90:4000/card/${detay_id}/yapilanlar`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -273,7 +273,7 @@ export default function Detay() {
     };
 
     try {
-        const response = await fetch('http://172.31.35.1:4001/api/excel/download', {
+        const response = await fetch('http://16.171.148.90:4001/api/excel/download', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

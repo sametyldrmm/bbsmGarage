@@ -30,7 +30,7 @@ export default function Teklif() {
 
   const fetchTeklifListesi = () => {
     setLoading(true);
-    fetch("http://172.31.35.1:4000/teklif", {
+    fetch("http://16.171.148.90:4000/teklif", {
       method: 'GET',
       redirect: 'follow'
     })
@@ -60,7 +60,7 @@ export default function Teklif() {
     setLoading(true);
     try {
       const deleteRequests = secilenTeklifler.map(teklifId =>
-        fetch(`http://172.31.35.1:4000/teklif/${teklifId}`, { method: 'DELETE' })
+        fetch(`http://16.171.148.90:4000/teklif/${teklifId}`, { method: 'DELETE' })
       );
       await Promise.all(deleteRequests);
 
@@ -93,7 +93,7 @@ export default function Teklif() {
     };
   
     try {
-      const response = await fetch('http://172.31.35.1:4000/card', {
+      const response = await fetch('http://16.171.148.90:4000/card', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ export default function Teklif() {
   
         setTeklifler(teklifler.filter(t => t.teklif_id !== teklif.teklif_id));
   
-        const deleteResponse = await fetch(`http://172.31.35.1:4000/teklif/${teklif.teklif_id}`, {
+        const deleteResponse = await fetch(`http://16.171.148.90:4000/teklif/${teklif.teklif_id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
