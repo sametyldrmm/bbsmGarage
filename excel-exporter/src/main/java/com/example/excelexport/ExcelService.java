@@ -14,7 +14,7 @@ import java.util.Map;
 @Service
 public class ExcelService {
 
-    public ByteArrayInputStream exportExcel(Map<String, String> vehicleInfo, List<Map<String, String>> data) throws IOException {
+    public ByteArrayInputStream exportExcel(Map<String, String> vehicleInfo, List<Map<String, String>> data, String notes) throws IOException {
         String templatePath = "/eses.xlsx";  // Şablon dosyasının yolu
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -51,6 +51,11 @@ public class ExcelService {
                 Cell cell3 = row.createCell(3);
                 cell3.setCellValue(rowData.get("Fiyat"));
             }
+
+            // Notlar kısmını ekleme
+            Row notesRow = sheet.createRow(startRow + data.size() + 1);
+            Cell notesCell = notesRow.createCell(0);
+            notesCell.setCellValue("NOTLAR: " + notes);
 
             workbook.write(out);
             return new ByteArrayInputStream(out.toByteArray());

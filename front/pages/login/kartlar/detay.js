@@ -248,6 +248,59 @@ export default function Detay() {
     setLoading(false);
   };
 
+  const handleExcelDownload = async () => {
+    const dataToSend = {
+        vehicleInfo: {
+            adSoyad,
+            telNo,
+            markaModel,
+            plaka,
+            km,
+            modelYili,
+            sasi,
+            renk,
+            girisTarihi,
+            notlar,
+            adres,
+        },
+        data: yapilanlar.map(item => ({
+            birimAdedi: item.birimAdedi,
+            parcaAdi: item.parcaAdi,
+            birimFiyati: item.birimFiyati,
+            toplamFiyat: item.birimFiyati * item.birimAdedi,
+        })),
+        notes: notlar
+    };
+
+    try {
+        const response = await fetch('http://localhost:4001/api/excel/download', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dataToSend),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'output.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Excel download error:', error);
+    }
+};
+
+  
+
   return (
     <>
       <Head>
@@ -311,7 +364,7 @@ export default function Detay() {
             <h2 className="text-2xl font-bold text-my-siyah mb-4">Kart Bilgileri</h2>
             <div className="flex items-center">
               <div className="items-center bg-green-500 p-2 pl-8 pr-8 rounded-full ml-4">
-                <button className="font-semibold text-my-beyaz text-md">Excel</button>
+                <button onClick={handleExcelDownload} className="font-semibold text-my-beyaz text-md">Excel</button>
               </div>
               <div className="items-center bg-yellow-500 p-2 pl-8 pr-8 rounded-full ml-4">
                 <button onClick={handleSaveCardInfo} className="font-semibold text-my-beyaz text-md">Kaydet</button>

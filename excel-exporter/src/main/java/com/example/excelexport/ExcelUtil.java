@@ -2,11 +2,7 @@ package com.example.excelexport;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -14,72 +10,55 @@ public class ExcelUtil {
 
     private static final int ROWS_PER_PAGE = 23;
 
-    public static void fillExcelTemplate(String templatePath, String outputPath, Map<String, String> vehicleInfo, List<Map<String, String>> data, String notes) throws IOException {
-        try (InputStream is = ExcelUtil.class.getResourceAsStream(templatePath);
-             Workbook workbook = new XSSFWorkbook(is)) {
+    public static void fillExcelTemplate(Workbook workbook, Map<String, String> vehicleInfo, List<Map<String, String>> data, String notes) throws IOException {
+        int sheetIndex = 0;
+        int rowIndex = 9;
+        Sheet sheet = workbook.getSheetAt(sheetIndex);
 
-            int sheetIndex = 0;
-            int rowIndex = 9;
-            Sheet sheet = workbook.getSheetAt(sheetIndex);
+        CellStyle financialCellStyle = workbook.createCellStyle();
+        DataFormat format = workbook.createDataFormat();
+        financialCellStyle.setDataFormat(format.getFormat("#,##0.00 ₺"));
 
-            // Para birimi hücre stilini oluşturma
-            CellStyle financialCellStyle = workbook.createCellStyle();
-            DataFormat format = workbook.createDataFormat();
-            financialCellStyle.setDataFormat(format.getFormat("#,##0.00 ₺"));  // Para birimi olarak ₺ (Türk Lirası)
+        fillHeaderAndVehicleInfo(sheet, vehicleInfo);
 
-            // Araç bilgilerini ve başlıkları doldurma
-            fillHeaderAndVehicleInfo(sheet, vehicleInfo);
-
-            for (int i = 0; i < data.size(); i++) {
-                if (rowIndex >= ROWS_PER_PAGE + 9) {  // 9 header rows + 23 data rows per page
-                    rowIndex = 9;
-                    sheetIndex++;
-                    sheet = copySheet(workbook, workbook.getSheetAt(0), "Page " + (sheetIndex + 1));
-                    fillHeaderAndVehicleInfo(sheet, vehicleInfo);
-                }
-                Row row = sheet.createRow(rowIndex++);
-                Map<String, String> rowData = data.get(i);
-
-                fillCell(row, 0, rowData.get("Miktar"));
-                fillCell(row, 1, rowData.get("Parça Adı"));
-                fillCellNumeric(row, 2, Double.parseDouble(rowData.get("Birim Fiyatı")), financialCellStyle);
-                fillCellNumeric(row, 3, Double.parseDouble(rowData.get("Fiyat")), financialCellStyle);
+        for (int i = 0; i < data.size(); i++) {
+            if (rowIndex >= ROWS_PER_PAGE + 9) {
+                rowIndex = 9;
+                sheetIndex++;
+                sheet = copySheet(workbook, workbook.getSheetAt(0), "Page " + (sheetIndex + 1));
+                fillHeaderAndVehicleInfo(sheet, vehicleInfo);
             }
+            Row row = sheet.createRow(rowIndex++);
+            Map<String, String> rowData = data.get(i);
 
-            // Notlar kısmını ekleme
-            addNotes(sheet, notes);
-
-            try (FileOutputStream fos = new FileOutputStream(outputPath)) {
-                workbook.write(fos);
-                System.out.println("Dosya başarıyla yazıldı: " + outputPath);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw e;
+            fillCell(row, 0, rowData.get("birimAdedi"));
+            fillCell(row, 1, rowData.get("parcaAdi"));
+            fillCellNumeric(row, 2, Double.parseDouble(rowData.get("birimFiyati")), financialCellStyle);
+            fillCellNumeric(row, 3, Double.parseDouble(rowData.get("toplamFiyat")), financialCellStyle);
         }
+
+        addNotes(sheet, notes);
     }
 
     private static void fillHeaderAndVehicleInfo(Sheet sheet, Map<String, String> vehicleInfo) {
-        // Araç bilgilerini doldurma
-        fillCell(sheet, 2, 1, vehicleInfo.get("Araç Plakası"));
-        fillCell(sheet, 2, 3, vehicleInfo.get("Araç Sahibi"));
-        fillCell(sheet, 3, 1, vehicleInfo.get("Marka/Model"));
-        fillCell(sheet, 3, 3, vehicleInfo.get("Adres") + "\n\n");
-        fillCell(sheet, 4, 1, vehicleInfo.get("Rengi"));
-        fillCell(sheet, 5, 3, vehicleInfo.get("KM"));
-        fillCell(sheet, 5, 1, vehicleInfo.get("Şasi No"));
-        fillCell(sheet, 6, 3, vehicleInfo.get("Tel"));
-        fillCell(sheet, 6, 1, vehicleInfo.get("Giriş Tarihi"));
+        fillCell(sheet, 2, 1, vehicleInfo.get("plaka"));
+        fillCell(sheet, 2, 3, vehicleInfo.get("adSoyad"));
+        fillCell(sheet, 3, 1, vehicleInfo.get("markaModel"));
+        fillCell(sheet, 3, 3, vehicleInfo.get("adres") + "\n\n");
+        fillCell(sheet, 4, 1, vehicleInfo.get("renk"));
+        fillCell(sheet, 5, 3, vehicleInfo.get("km"));
+        fillCell(sheet, 5, 1, vehicleInfo.get("sasi"));
+        fillCell(sheet, 6, 3, vehicleInfo.get("telNo"));
+        fillCell(sheet, 6, 1, vehicleInfo.get("girisTarihi"));
 
-        // Başlık satırlarını doldurma
         Row headerRow = sheet.getRow(9);
         if (headerRow == null) {
             headerRow = sheet.createRow(9);
         }
-        fillCell(headerRow, 0, "MİKTAR");
+        fillCell(headerRow, 0, "BİRİM ADEDİ");
         fillCell(headerRow, 1, "PARÇA ADI");
-        fillCell(headerRow, 2, "BİRİM FİYAT");
-        fillCell(headerRow, 3, "FİYAT");
+        fillCell(headerRow, 2, "BİRİM FİYATI");
+        fillCell(headerRow, 3, "TOPLAM FİYAT");
     }
 
     private static void fillCell(Sheet sheet, int rowIndex, int cellIndex, String value) {
@@ -108,7 +87,7 @@ public class ExcelUtil {
             cell = row.createCell(cellIndex);
         }
         cell.setCellValue(value);
-        cell.setCellStyle(style); // Hücre stilini ayarla
+        cell.setCellStyle(style);
     }
 
     private static Sheet copySheet(Workbook workbook, Sheet originalSheet, String newSheetName) {
@@ -133,12 +112,10 @@ public class ExcelUtil {
             }
         }
 
-        // Copy merged regions
         for (int i = 0; i < originalSheet.getNumMergedRegions(); i++) {
             newSheet.addMergedRegion(originalSheet.getMergedRegion(i));
         }
 
-        // Copy column widths
         for (int i = 0; i < originalSheet.getRow(0).getLastCellNum(); i++) {
             newSheet.setColumnWidth(i, originalSheet.getColumnWidth(i));
         }
@@ -176,7 +153,6 @@ public class ExcelUtil {
         notesCell = notesRow.createCell(0);
         notesCell.setCellValue(notes);
 
-        // Gerekirse hücre stillerini ve hücre birleşimlerini ayarlayabilirsiniz
         sheet.addMergedRegion(new CellRangeAddress(notesRowIndex + 1, notesRowIndex + 1, 0, 3));
     }
 }
