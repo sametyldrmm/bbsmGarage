@@ -66,7 +66,7 @@ export default function stok() {
           };
 
           try {
-              const response = await fetch('http://127.0.0.1:4000/stok', {
+              const response = await fetch('http://16.171.148.90:4000/stok', {
                   method: 'POST',
                   headers: {
                       'Content-Type': 'application/json',
