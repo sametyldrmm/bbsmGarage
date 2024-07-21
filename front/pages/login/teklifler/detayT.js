@@ -355,7 +355,7 @@ export default function Detay() {
                       <input
                         onChange={(event) => handleChange2(event, index)}
                         placeholder="Birim Adedi"
-                        value={yapilan.birimAdedi || '1'}
+                        value={yapilan[index].birimAdedi ?? '1'}
                         type="number"
                         name="birimAdedi"
                         className="bg-my-beyaz border p-2 rounded-md"
@@ -365,7 +365,7 @@ export default function Detay() {
                       <input
                         onChange={(event) => handleChange2(event, index)}
                         placeholder="Parça Adı"
-                        value={yapilan.parcaAdi || ''}
+                        value={yapilan[index].parcaAdi || ''}
                         type="text"
                         name="parcaAdi"
                         className="bg-my-beyaz border p-2 rounded-md w-full truncate"
@@ -376,7 +376,7 @@ export default function Detay() {
                       <input
                         onChange={(event) => handleChange2(event, index)}
                         placeholder="Birim Fiyatı"
-                        value={yapilan.birimFiyati || '0'}
+                        value={yapilan[index].birimFiyati ?? '0'}
                         type="number"
                         name="birimFiyati"
                         className="bg-my-beyaz border p-2 rounded-md"
