@@ -42,6 +42,15 @@ const AnaBilesen = ({ onClose, onKartEkle, onTeklifEkle }) => {
     setYapilanlar([...yapilanlar, yeniYapilan]);
   };
 
+  const handleYapilanlarSil = (yeniYapilan) => {
+    setYapilanlar([]);
+  };
+
+  const handleYapilanlarSil_index = (yeniYapilan_index) => {
+    const yeniYapilanlar = yapilanlar.filter((_, i) => i !== yeniYapilan_index);
+    setYapilanlar(yeniYapilanlar);
+  };
+
   return (
     <div>
       {ilkModalGorunur && (
@@ -62,6 +71,11 @@ const AnaBilesen = ({ onClose, onKartEkle, onTeklifEkle }) => {
           onTeklifEkle={onTeklifEkle}
           yapilanlar={yapilanlar}
           onYapilanlarEkle={handleYapilanlarEkle}
+          onYapilanlarSil={handleYapilanlarSil}
+          onYapilanlarSil_index={handleYapilanlarSil_index}
+          
+          
+          
         />
       )}
     </div>

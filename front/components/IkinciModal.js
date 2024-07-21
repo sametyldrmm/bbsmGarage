@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose, onKartEkle, onTeklifEkle, yapilanlar, onYapilanlarEkle }) => {
+const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose, onKartEkle, onTeklifEkle, yapilanlar, onYapilanlarEkle, onYapilanlarSil, onYapilanlarSil_index }) => {
   const [birimAdedi, setBirimAdedi] = useState('');
   const [parcaAdi, setParcaAdi] = useState('');
   const [birimFiyati, setBirimFiyati] = useState('');
@@ -49,6 +49,7 @@ const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose, onKartEkle, o
 
   const handleClearItems = () => {
     setLocalYapilanlar([]);
+    onYapilanlarSil();
   };
 
   const handleCloseAndClear = () => {
@@ -58,6 +59,7 @@ const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose, onKartEkle, o
   const handleRemoveItem = (index) => {
     const yeniYapilanlar = localYapilanlar.filter((_, i) => i !== index);
     setLocalYapilanlar(yeniYapilanlar);
+    onYapilanlarSil_index(index);
   };
 
   return (
