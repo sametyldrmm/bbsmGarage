@@ -355,7 +355,7 @@ export default function Detay() {
                       <input
                         onChange={(event) => handleChange2(event, index)}
                         placeholder="Birim Adedi"
-                        value={yapilan[index].birimAdedi ?? '1'}
+                        value={yapilan.birimAdedi ?? '1'}
                         type="number"
                         name="birimAdedi"
                         className="bg-my-beyaz border p-2 rounded-md"
@@ -365,7 +365,7 @@ export default function Detay() {
                       <input
                         onChange={(event) => handleChange2(event, index)}
                         placeholder="Parça Adı"
-                        value={yapilan[index].parcaAdi || ''}
+                        value={yapilan.parcaAdi || ''}
                         type="text"
                         name="parcaAdi"
                         className="bg-my-beyaz border p-2 rounded-md w-full truncate"
