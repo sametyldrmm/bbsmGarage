@@ -354,7 +354,7 @@ export default function Detay() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input
                         onChange={(event) => handleChange2(event, index)}
-                        placeholder="Birim Adedi"
+                        placeholder="1"
                         value={yapilan.birimAdedi || ''}
                         type="number"
                         name="birimAdedi"
@@ -375,7 +375,7 @@ export default function Detay() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input
                         onChange={(event) => handleChange2(event, index)}
-                        placeholder="Birim Fiyatı"
+                        placeholder="0"
                         value={yapilan.birimFiyati || ''}
                         type="number"
                         name="birimFiyati"
