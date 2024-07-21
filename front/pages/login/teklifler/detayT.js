@@ -376,7 +376,7 @@ export default function Detay() {
                       <input
                         onChange={(event) => handleChange2(event, index)}
                         placeholder="Birim Fiyatı"
-                        value={yapilan[index].birimFiyati ?? '0'}
+                        value={yapilan.birimFiyati ?? '0'}
                         type="number"
                         name="birimFiyati"
                         className="bg-my-beyaz border p-2 rounded-md"
