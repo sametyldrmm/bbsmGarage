@@ -17,12 +17,9 @@ export class CardService {
 
   async create(createCardDto: CreateCardDto) {
     try {
-      console.log("Creating Card:", createCardDto);
-
       // CardEntity oluşturuluyor ve veritabanına kaydediliyor
       const card = this.databaseRepository.create(createCardDto);
       const savedCard = await this.databaseRepository.save(card);
-      console.log("Card saved with ID:", savedCard.card_id);
 
       // Yapilanlar ekleniyor
       if (createCardDto.yapilanlar && createCardDto.yapilanlar.length > 0) {
@@ -37,13 +34,10 @@ export class CardService {
         });
 
         await this.yapilanlarRepository.save(yapilanlarEntities);
-        console.log("Yapilanlar saved:", yapilanlarEntities); // Yapilanlar kaydedildi
       }
 
-      console.log("İşlem başarıyla tamamlandı.");
       return this.databaseRepository.findOne({ where: { card_id: savedCard.card_id }, relations: ["yapilanlar"] });
     } catch (error) {
-      console.error("Hata oluştu:", error);
       throw error;
     }
   }
