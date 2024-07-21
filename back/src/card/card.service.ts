@@ -22,19 +22,19 @@ export class CardService {
       const savedCard = await this.databaseRepository.save(card);
 
       // Yapilanlar ekleniyor
-      if (createCardDto.yapilanlar && createCardDto.yapilanlar.length > 0) {
-        const yapilanlarEntities = createCardDto.yapilanlar.map(dto => {
-          const yapilan = new YapilanlarEntity();
-          yapilan.birimAdedi = dto.birimAdedi;
-          yapilan.parcaAdi = dto.parcaAdi;
-          yapilan.birimFiyati = dto.birimFiyati;
-          yapilan.toplamFiyat = dto.toplamFiyat;
-          yapilan.card = savedCard; // İlişkiyi belirtmek için card referansı ekleniyor
-          return yapilan;
-        });
+      // if (createCardDto.yapilanlar && createCardDto.yapilanlar.length > 0) {
+      //   const yapilanlarEntities = createCardDto.yapilanlar.map(dto => {
+      //     const yapilan = new YapilanlarEntity();
+      //     yapilan.birimAdedi = dto.birimAdedi;
+      //     yapilan.parcaAdi = dto.parcaAdi;
+      //     yapilan.birimFiyati = dto.birimFiyati;
+      //     yapilan.toplamFiyat = dto.toplamFiyat;
+      //     yapilan.card = savedCard; // İlişkiyi belirtmek için card referansı ekleniyor
+      //     return yapilan;
+      //   });
 
-        await this.yapilanlarRepository.save(yapilanlarEntities);
-      }
+      //   await this.yapilanlarRepository.save(yapilanlarEntities);
+      // }
 
       return this.databaseRepository.findOne({ where: { card_id: savedCard.card_id }, relations: ["yapilanlar"] });
     } catch (error) {

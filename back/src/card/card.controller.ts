@@ -22,7 +22,6 @@ export class CardController {
       adres: createCardDto.adres || "",
       yapilanlar: createCardDto.yapilanlar || [],
     };
-  
     return this.cardService.create(cardData);
   }  
 
