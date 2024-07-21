@@ -1,21 +1,24 @@
-import { useAuth } from '../auth-context'; // auth-context dosyanızın yolu
+import { useAuth } from './auth-context';
+import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-const MyComponent = () => {
-  const { fetchWithAuth } = useAuth();
+const withAuth = (WrappedComponent) => {
+  return (props) => {
+    const { user, logout } = useAuth();
+    const router = useRouter();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetchWithAuth('http://16.171.148.90:4000/protected-endpoint');
-      if (response && response.ok) {
-        const data = await response.json();
+    useEffect(() => {
+      if (!user) {
+        router.push('/'); // Kullanıcı giriş yapmamışsa giriş sayfasına yönlendir
       }
-    };
+    }, [user, router]);
 
-    fetchData();
-  }, []);
+    if (!user) {
+      return null; // Kullanıcı yoksa hiçbir şey render etme
+    }
 
-  return <div>My Component</div>;
+    return <WrappedComponent {...props} />;
+  };
 };
 
-export default MyComponent;
+export default withAuth;

@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../auth-context';
 
 const ProtectedComponent = () => {
   const [protectedData, setProtectedData] = useState(null);
+  const { fetchWithAuth } = useAuth();
 
   useEffect(() => {
     const fetchProtectedData = async () => {
-      const token = localStorage.getItem('token');
-
-      const response = await fetch('http://16.171.148.90:4000/protected', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await fetchWithAuth('http://16.171.148.90:4000/protected');
 
       if (response.ok) {
         const data = await response.json();
@@ -23,7 +18,7 @@ const ProtectedComponent = () => {
     };
 
     fetchProtectedData();
-  }, []);
+  }, [fetchWithAuth]);
 
   return (
     <div>
