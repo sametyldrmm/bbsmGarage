@@ -78,7 +78,6 @@ export default function Teklif() {
   }
   
   const handleTeklifEkle = async (teklif) => {
-  
     setLoading(true);
     const updatedTeklif = {
       ...teklif,
@@ -93,27 +92,30 @@ export default function Teklif() {
     };
   
     try {
-      const response = await fetch('http://16.171.148.90:4000/card', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedTeklif),
-      });
-  
-      if (response.ok) {
-        const eklenenKart = await response.json();
-  
-        setTeklifler(teklifler.filter(t => t.teklif_id !== teklif.teklif_id));
-  
-        const deleteResponse = await fetch(`http://16.171.148.90:4000/teklif/${teklif.teklif_id}`, {
+      // POST işlemi ve DELETE işlemi için Promise.all kullanımı
+      const [postResponse, deleteResponse] = await Promise.all([
+        fetch('http://16.171.148.90:4000/card', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedTeklif),
+        }),
+        fetch(`http://16.171.148.90:4000/teklif/${teklif.teklif_id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
           },
-        });
+        })
+      ]);
   
-        if (!deleteResponse.ok) {
+      // POST işlemi başarılı olup olmadığını kontrol et
+      if (postResponse.ok) {
+        const eklenenKart = await postResponse.json();
+        // POST işlemi başarılı olduğunda DELETE işlemini gerçekleştir
+        if (deleteResponse.ok) {
+          setTeklifler(teklifler.filter(t => t.teklif_id !== teklif.teklif_id));
+        } else {
           console.error('Teklif silinirken bir hata oluştu');
         }
       } else {
@@ -122,8 +124,10 @@ export default function Teklif() {
     } catch (error) {
       console.error('İşlem sırasında bir hata oluştu:', error);
     }
+  
     setLoading(false);
   };
+  
   
   
 
