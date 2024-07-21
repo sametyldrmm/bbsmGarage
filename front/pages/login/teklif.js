@@ -41,7 +41,7 @@ export default function Teklif() {
         }
       })
       .catch(error => console.log('error', error));
-      setLoading(false);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export default function Teklif() {
   function formatKm(km) {
     return km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
-  
+
   const handleTeklifEkle = async (teklif) => {
     setLoading(true);
     const updatedTeklif = {
@@ -90,59 +90,62 @@ export default function Teklif() {
       girisTarihi: teklif.girisTarihi || "Tanımsız",
       yapilanlar: teklif.yapilanlar || [],
     };
-  
+
+    console.log("teklif ekle teklif");
     try {
-      // POST işlemi ve DELETE işlemi için Promise.all kullanımı
-      const [postResponse] = await Promise.all([
-        fetch('http://16.171.148.90:4000/card', {
-          method: 'POST',
+      const [deleteResponse] = await Promise.all([
+        fetch(`http://16.171.148.90:4000/teklif/${teklif.teklif_id}`, {
+          method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(updatedTeklif),
-        }),
+        })
       ]);
-  
-
 
       // POST işlemi başarılı olup olmadığını kontrol et
-      if (postResponse.ok) {
-        const eklenenKart = await postResponse.json();
-        // POST işlemi başarılı olduğunda DELETE işlemini gerçekleştir
-        const [deleteResponse] = await Promise.all([
-          fetch(`http://16.171.148.90:4000/teklif/${teklif.teklif_id}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          })
-        ]);
+      if (deleteResponse.ok)
+      {
+          console.log("delete teklif");
+          const [postResponse] = await Promise.all([
+            fetch('http://16.171.148.90:4000/card', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(updatedTeklif),
+            }),
+          ]);
 
-        if (deleteResponse.ok) {
-          setTeklifler(teklifler.filter(t => t.teklif_id !== teklif.teklif_id));
-        } else {
-          console.error('Teklif silinirken bir hata oluştu');
-        }
-      } else {
-        console.error('Kart eklenirken bir hata oluştu');
+          if (postResponse.ok)
+          {
+            setTeklifler(teklifler.filter(t => t.teklif_id !== teklif.teklif_id));
+          } 
+          else 
+          {
+            console.error('Kart eklenirken bir hata oluştu');
+          }
+      } 
+      else 
+      {
+        console.error('Teklif silinirken bir hata oluştu');
       }
     } catch (error) {
       console.error('İşlem sırasında bir hata oluştu:', error);
     }
-  
+
     setLoading(false);
   };
-  
-  
-  
+
+
+
 
   const filtrelenmisTeklifler = teklifler.filter(teklif => {
     const searchLower = aramaTerimi.toLowerCase();
     return (
-      (teklif.adSoyad?.toLowerCase().includes(searchLower)) || 
+      (teklif.adSoyad?.toLowerCase().includes(searchLower)) ||
       (teklif.markaModel?.toLowerCase().includes(searchLower)) ||
-      (teklif.plaka?.toLowerCase().includes(searchLower)) || 
-      (teklif.sasi?.toLowerCase().includes(searchLower)) || 
+      (teklif.plaka?.toLowerCase().includes(searchLower)) ||
+      (teklif.sasi?.toLowerCase().includes(searchLower)) ||
       (teklif.girisTarihi?.toString().includes(aramaTerimi))
     );
   });
@@ -294,7 +297,7 @@ export default function Teklif() {
                         {capitalizeWords(teklif.adSoyad || "Tanımsız")}
                       </td>
                       <td className="px-6 py-2">
-                      {(teklif.markaModel || "Tanımsız").length > 20  ? `${toUpperCase((teklif.markaModel || "Tanımsız").substring(0, 20))}...` : capitalizeWords(teklif.markaModel || "Tanımsız")}
+                        {(teklif.markaModel || "Tanımsız").length > 20 ? `${toUpperCase((teklif.markaModel || "Tanımsız").substring(0, 20))}...` : capitalizeWords(teklif.markaModel || "Tanımsız")}
                       </td>
                       <td className="px-6 py-2 text-green-500">
                         {toUpperCase(teklif.plaka || "Tanımsız")}
@@ -303,7 +306,7 @@ export default function Teklif() {
                         {teklif.km !== undefined && teklif.km !== null ? formatKm(teklif.km) : "Tanımsız"}
                       </td>
                       <td className="px-6 py-2 uppercase">
-                        {(teklif.sasi || "Tanımsız").length > 7  ? `${toUpperCase((teklif.sasi || "Tanımsız").substring(0, 7))}...` : toUpperCase(teklif.sasi || "Tanımsız")}
+                        {(teklif.sasi || "Tanımsız").length > 7 ? `${toUpperCase((teklif.sasi || "Tanımsız").substring(0, 7))}...` : toUpperCase(teklif.sasi || "Tanımsız")}
                       </td>
                       <td className="px-6 py-2 text-blue-500">
                         {teklif.girisTarihi || "Tanımsız"}

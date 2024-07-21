@@ -15,7 +15,7 @@ export class TeklifService {
   ) {}
 
   async create(createTeklifDto: CreateTeklifDto): Promise<TeklifEntity> {
-    const teklif = this.databaseRepository.create(createTeklifDto as unknown as Partial<TeklifEntity>);
+    const teklif = await this.databaseRepository.create(createTeklifDto as unknown as Partial<TeklifEntity>);
     return this.databaseRepository.save(teklif);
   }
 
@@ -24,7 +24,7 @@ export class TeklifService {
   }
 
   async findOne(id: number): Promise<TeklifEntity> {
-    return this.databaseRepository.findOne({
+    return await this.databaseRepository.findOne({
       where: { teklif_id: id },
       relations: ['yapilanlar'],
     });
