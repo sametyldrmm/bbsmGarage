@@ -14,6 +14,8 @@ const Kartlar = () => {
   const [secilenKartlar, setSecilenKartlar] = useState([]);
   const [aramaTerimi, setAramaTerimi] = useState('');
   const [teklifler, setTeklifler] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+
 
   const DetailPage = (id) => {
     return (id ? `/login/kartlar/detay?id=${id}` : '/login/kartlar');
@@ -178,6 +180,57 @@ const Kartlar = () => {
     kart.girisTarihi?.toString().includes(aramaTerimi)
   );
 
+
+  const parseDate = (str) => {
+    if (!str || str.toLowerCase() === "tanımsız") return null;
+    const [day, month, year] = str.split('-');
+    if (!day || !month || !year) return null;
+    const formattedDate = `20${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    return new Date(formattedDate);
+  };
+  
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+  
+  const sortedKartlar = React.useMemo(() => {
+    let sortableItems = [...kartlar];
+  
+    sortableItems.sort((a, b) => {
+      if (sortConfig.key === 'girisTarihi') {
+        const dateA = parseDate(a.girisTarihi);
+        const dateB = parseDate(b.girisTarihi);
+  
+        if (dateA === null && dateB !== null) return 1;
+        if (dateA !== null && dateB === null) return -1;
+        if (dateA === null && dateB === null) return 0;
+  
+        if (dateA < dateB) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (dateA > dateB) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      } else {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      }
+    });
+  
+    return sortableItems;
+  }, [kartlar, sortConfig]);
+  
+
   return (
     <>
       <Head>
@@ -285,76 +338,83 @@ const Kartlar = () => {
 
             <div className="overflow-auto ">
               <table className="w-full text-sm text-left text-gray-500 font-medium">
-                <thead className="text-xs text-gray-600 uppercase bg-my-edbeyaz">
-                  <tr>
-                    <th scope="col" className="p-4"></th>
-                    <th scope="col" className="px-6 py-3">
-                      Ad-Soyad
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      Marka-Model
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      Plaka
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      Km
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      Şasİ No
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      Giriş Tarihi
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      Görüntüle
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      İndİr
-                    </th>
+              <thead className="text-xs text-gray-600 uppercase bg-my-edbeyaz">
+                <tr>
+                  <th scope="col" className="p-4"></th>
+                  <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => handleSort('adSoyad')}>
+                    Ad-Soyad {sortConfig.key === 'adSoyad' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                  </th>
+                  <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => handleSort('markaModel')}>
+                    Marka-Model {sortConfig.key === 'markaModel' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                  </th>
+                  <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => handleSort('plaka')}>
+                    Plaka {sortConfig.key === 'plaka' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                  </th>
+                  <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => handleSort('km')}>
+                    Km {sortConfig.key === 'km' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                  </th>
+                  <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => handleSort('sasi')}>
+                    Şasİ No {sortConfig.key === 'sasi' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                  </th>
+                  <th scope="col" className="px-6 py-3 cursor-pointer" onClick={() => handleSort('girisTarihi')}>
+                    Giriş Tarihi {sortConfig.key === 'girisTarihi' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Görüntüle
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    İndİr
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {sortedKartlar.filter(kart =>
+                  kart.adSoyad?.toLowerCase().includes(aramaTerimi.toLowerCase()) ||
+                  kart.markaModel?.toLowerCase().includes(aramaTerimi.toLowerCase()) ||
+                  kart.plaka?.toLowerCase().includes(aramaTerimi.toLowerCase()) ||
+                  kart.sasi?.toLowerCase().includes(aramaTerimi.toLowerCase()) ||
+                  kart.km?.toString().includes(aramaTerimi) ||
+                  kart.girisTarihi?.toString().includes(aramaTerimi)
+                ).map((kart) => (
+                  <tr key={kart.card_id}>
+                    <td className="w-4 p-4">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                          checked={secilenKartlar.includes(kart.card_id)}
+                          onChange={(e) => handleCheckboxChange(e, kart.card_id)}
+                        />
+                        <label htmlFor={`checkbox-table-${kart.card_id}`} className="sr-only">checkbox</label>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                      {capitalizeWords(kart.adSoyad || "Tanımsız")}
+                    </td>
+                    <td className="px-6 py-4">
+                      {capitalizeWords(kart.markaModel || "Tanımsız")}
+                    </td>
+                    <td className="px-6 py-4 text-green-500">
+                      {toUpperCase(kart.plaka || "Tanımsız")}
+                    </td>
+                    <td className="px-6 py-4">
+                      {kart.km !== undefined && kart.km !== null ? formatKm(kart.km) : "Tanımsız"}
+                    </td>
+                    <td className="px-6 py-4 uppercase">
+                      {(kart.sasi || "Tanımsız").length > 17  ? `${toUpperCase((kart.sasi || "Tanımsız").substring(0, 17))}...` : toUpperCase(kart.sasi || "Tanımsız")}
+                    </td>
+                    <td className="px-6 py-4 text-blue-500">
+                      {kart.girisTarihi || "Tanımsız"}
+                    </td>
+                    <td className="px-6 py-4">
+                      <Link href={DetailPage(kart.card_id)} className="bg-yellow-500 p-2 pl-4 pr-4 rounded-full font-medium text-my-siyah hover:underline">Detay</Link>
+                    </td>
+                    <td className="px-6 py-4 ">
+                      <a href="#" className="bg-green-500 p-2 pl-4 pr-4 rounded-full font-medium text-my-beyaz hover:underline">Excel</a>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filtrelenmisKartlar.map((kart) => (
-                    <tr key={kart.card_id}>
-                      <td className="w-4 p-4">
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                            checked={secilenKartlar.includes(kart.card_id)}
-                            onChange={(e) => handleCheckboxChange(e, kart.card_id)}
-                          />
-                          <label htmlFor={`checkbox-table-${kart.card_id}`} className="sr-only">checkbox</label>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                        {capitalizeWords(kart.adSoyad || "Tanımsız")}
-                      </td>
-                      <td className="px-6 py-4">
-                        {capitalizeWords(kart.markaModel || "Tanımsız")}
-                      </td>
-                      <td className="px-6 py-4 text-green-500">
-                        {toUpperCase(kart.plaka || "Tanımsız")}
-                      </td>
-                      <td className="px-6 py-4">
-                        {kart.km !== undefined && kart.km !== null ? formatKm(kart.km) : "Tanımsız"}
-                      </td>
-                      <td className="px-6 py-4 uppercase">
-                        {(kart.sasi || "Tanımsız").length > 17  ? `${toUpperCase((kart.sasi || "Tanımsız").substring(0, 17))}...` : toUpperCase(kart.sasi || "Tanımsız")}
-                      </td>
-                      <td className="px-6 py-4 text-blue-500">
-                        {kart.girisTarihi || "Tanımsız"}
-                      </td>
-                      <td className="px-6 py-4">
-                        <Link href={DetailPage(kart.card_id)} className="bg-yellow-500 p-2 pl-4 pr-4 rounded-full font-medium text-my-siyah hover:underline">Detay</Link>
-                      </td>
-                      <td className="px-6 py-4 ">
-                        <a href="#" className="bg-green-500 p-2 pl-4 pr-4 rounded-full font-medium text-my-beyaz hover:underline">Excel</a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+                ))}
+              </tbody>
               </table>
             </div>
           </div>

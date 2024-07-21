@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose, onKartEkle, onTeklifEkle }) => {
+const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose, onKartEkle, onTeklifEkle, yapilanlar, onYapilanlarEkle }) => {
   const [birimAdedi, setBirimAdedi] = useState('');
   const [parcaAdi, setParcaAdi] = useState('');
   const [birimFiyati, setBirimFiyati] = useState('');
-  const [yapilanlar, setYapilanlar] = useState([]);
+  const [localYapilanlar, setLocalYapilanlar] = useState([]);
+
+  useEffect(() => {
+    setLocalYapilanlar(yapilanlar);
+  }, [yapilanlar]);
 
   const handleIkinciModalSubmit = () => {
-    const parsedBirimAdedi = parseInt(birimAdedi, 10) || 0;
+    const parsedBirimAdedi = parseInt(birimAdedi, 10) || 1;
     const parsedBirimFiyati = parseFloat(birimFiyati) || 0;
 
-    if (parsedBirimAdedi <= 0 || !parcaAdi || parsedBirimFiyati <= 0) {
+    if (!parcaAdi ) {
       alert("Lütfen tüm alanları doğru bir şekilde doldurun.");
       return;
     }
@@ -21,19 +25,16 @@ const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose, onKartEkle, o
       birimFiyati: parsedBirimFiyati,
       toplamFiyat: parsedBirimAdedi * parsedBirimFiyati,
     };
-    setYapilanlar([...yapilanlar, ikinciModalBilgiler]);
-
-    if (parsedBirimAdedi && parcaAdi && parsedBirimFiyati) {
-      setBirimAdedi('');
-      setParcaAdi('');
-      setBirimFiyati('');
-    }
+    onYapilanlarEkle(ikinciModalBilgiler);
+    setBirimAdedi('');
+    setParcaAdi('');
+    setBirimFiyati('');
   };
 
   const handleSubmit = () => {
     const yeniKart = {
       ...ilkModalBilgi,
-      yapilanlar
+      yapilanlar: localYapilanlar
     };
     onKartEkle(yeniKart);
   };
@@ -41,23 +42,22 @@ const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose, onKartEkle, o
   const handleTeklifEkle = () => {
     const yeniTeklif = {
       ...ilkModalBilgi,
-      yapilanlar
+      yapilanlar: localYapilanlar
     };
     onTeklifEkle(yeniTeklif);
   };
 
   const handleClearItems = () => {
-    setYapilanlar([]);
+    setLocalYapilanlar([]);
   };
 
   const handleCloseAndClear = () => {
-    handleClearItems();
     onClose();
   };
 
   const handleRemoveItem = (index) => {
-    const yeniYapilanlar = yapilanlar.filter((_, i) => i !== index);
-    setYapilanlar(yeniYapilanlar);
+    const yeniYapilanlar = localYapilanlar.filter((_, i) => i !== index);
+    setLocalYapilanlar(yeniYapilanlar);
   };
 
   return (
@@ -79,7 +79,7 @@ const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose, onKartEkle, o
               value={birimAdedi}
               onChange={(e) => setBirimAdedi(e.target.value)}
               placeholder="Birim Adedi"
-              className="border p-2 rounded-md bg-my-beyaz"
+              className="border p-2 rounded-md text-gray-600 font-medium bg-my-beyaz"
             />
             <input
               type="text"
@@ -87,7 +87,7 @@ const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose, onKartEkle, o
               value={parcaAdi}
               onChange={(e) => setParcaAdi(e.target.value)}
               placeholder="Parça Adı"
-              className="border p-2 rounded-md bg-my-beyaz"
+              className="border p-2 rounded-md text-gray-600 font-medium bg-my-beyaz"
             />
             <input
               type="number"
@@ -95,7 +95,7 @@ const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose, onKartEkle, o
               value={birimFiyati}
               onChange={(e) => setBirimFiyati(e.target.value)}
               placeholder="Birim Fiyatı"
-              className="border p-2 rounded-md bg-my-beyaz"
+              className="border p-2 rounded-md text-gray-600 font-medium bg-my-beyaz"
             />
           </div>
 
@@ -104,7 +104,7 @@ const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose, onKartEkle, o
               Ekle
             </button>
           </div>
-          <div className="overflow-x-auto mt-6 max-h-72">
+          <div className="overflow-x-auto mt-6 max-h-48 overflow-y-auto">
             <table className="min-w-full text-sm divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -120,13 +120,13 @@ const IkinciModal = ({ onIkinciModalClose, ilkModalBilgi, onClose, onKartEkle, o
                 </tr>
               </thead>
               <tbody className="bg-white divide-y  divide-gray-200">
-                {yapilanlar.map((asd, index) => (
+                {localYapilanlar.map((asd, index) => (
                   <tr key={index}>
-                    <td className="px-6 py-1 whitespace-nowrap">{asd.birimAdedi}</td>
-                    <td className="px-6 py-1 whitespace-nowrap">{asd.parcaAdi}</td>
-                    <td className="px-6 py-1 whitespace-nowrap">{asd.birimFiyati}</td>
-                    <td className="px-6 py-1 whitespace-nowrap">{asd.toplamFiyat}</td>
-                    <td className="px-6 py-1 whitespace-nowrap text-center text-sm font-medium">
+                    <td className="px-6 py-1 text-gray-700 whitespace-nowrap">{asd.birimAdedi}</td>
+                    <td className="px-6 py-1 text-gray-700 whitespace-nowrap">{asd.parcaAdi}</td>
+                    <td className="px-6 py-1 text-gray-700 whitespace-nowrap">{asd.birimFiyati}</td>
+                    <td className="px-6 py-1 text-gray-700 whitespace-nowrap">{asd.toplamFiyat}</td>
+                    <td className="px-6 py-1 text-gray-700 whitespace-nowrap text-center text-sm font-medium">
                       <button onClick={() => handleRemoveItem(index)} className="text-red-500 hover:text-red-700">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>

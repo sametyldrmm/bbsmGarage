@@ -6,7 +6,8 @@ const AnaBilesen = ({ onClose, onKartEkle, onTeklifEkle }) => {
   const [ilkModalGorunur, setIlkModalGorunur] = useState(true);
   const [ikinciModalGorunur, setIkinciModalGorunur] = useState(false);
   const [girilenBilgi, setGirilenBilgi] = useState('');
-
+  const [yapilanlar, setYapilanlar] = useState([]);
+  
   const handleIlkModalSubmit = (bilgi) => {
     setGirilenBilgi(bilgi);
     setIlkModalGorunur(false);
@@ -37,6 +38,10 @@ const AnaBilesen = ({ onClose, onKartEkle, onTeklifEkle }) => {
     onKartEkle(kart);
   };
 
+  const handleYapilanlarEkle = (yeniYapilan) => {
+    setYapilanlar([...yapilanlar, yeniYapilan]);
+  };
+
   return (
     <div>
       {ilkModalGorunur && (
@@ -44,6 +49,7 @@ const AnaBilesen = ({ onClose, onKartEkle, onTeklifEkle }) => {
           onIlkModalSubmit={handleIlkModalSubmit}
           onIlkModalClose={() => setIlkModalGorunur(false)}
           onClose={handleClose}
+          ilkModalBilgi={girilenBilgi} 
         />
       )}
 
@@ -54,6 +60,8 @@ const AnaBilesen = ({ onClose, onKartEkle, onTeklifEkle }) => {
           onClose={handleClose}
           onKartEkle={handleKartEkle}
           onTeklifEkle={onTeklifEkle}
+          yapilanlar={yapilanlar}
+          onYapilanlarEkle={handleYapilanlarEkle}
         />
       )}
     </div>
