@@ -93,7 +93,7 @@ export default function Teklif() {
   
     try {
       // POST işlemi ve DELETE işlemi için Promise.all kullanımı
-      const [postResponse, deleteResponse] = await Promise.all([
+      const [postResponse] = await Promise.all([
         fetch('http://16.171.148.90:4000/card', {
           method: 'POST',
           headers: {
@@ -101,18 +101,23 @@ export default function Teklif() {
           },
           body: JSON.stringify(updatedTeklif),
         }),
-        fetch(`http://16.171.148.90:4000/teklif/${teklif.teklif_id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
       ]);
   
+
+
       // POST işlemi başarılı olup olmadığını kontrol et
       if (postResponse.ok) {
         const eklenenKart = await postResponse.json();
         // POST işlemi başarılı olduğunda DELETE işlemini gerçekleştir
+        const [deleteResponse] = await Promise.all([
+          fetch(`http://16.171.148.90:4000/teklif/${teklif.teklif_id}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+        ]);
+
         if (deleteResponse.ok) {
           setTeklifler(teklifler.filter(t => t.teklif_id !== teklif.teklif_id));
         } else {
