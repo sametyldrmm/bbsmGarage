@@ -238,9 +238,9 @@ export default function Detay() {
   const handleEkleYapilanlar = () => {
     setLoading(true);
     const yeniYapilan = {
-      birimAdedi: '',
+      birimAdedi: '1',
       parcaAdi: '',
-      birimFiyati: '',
+      birimFiyati: '1',
       toplamFiyat: 0,
     };
     setYapilanlar([...yapilanlar, yeniYapilan]);
@@ -355,7 +355,7 @@ export default function Detay() {
                       <input
                         onChange={(event) => handleChange2(event, index)}
                         placeholder="Birim Adedi"
-                        value={yapilan.birimAdedi ?? '1'}
+                        value={yapilan.birimAdedi || ''}
                         type="number"
                         name="birimAdedi"
                         className="bg-my-beyaz border p-2 rounded-md"
@@ -376,7 +376,7 @@ export default function Detay() {
                       <input
                         onChange={(event) => handleChange2(event, index)}
                         placeholder="Birim Fiyatı"
-                        value={yapilan.birimFiyati ?? '0'}
+                        value={yapilan.birimFiyati || ''}
                         type="number"
                         name="birimFiyati"
                         className="bg-my-beyaz border p-2 rounded-md"

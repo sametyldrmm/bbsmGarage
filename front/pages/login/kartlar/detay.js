@@ -409,7 +409,7 @@ export default function Detay() {
                       <input
                         onChange={(event) => handleChange2(event, index)}
                         placeholder="Birim Adedi" // Placeholder olarak açıklayıcı metin kullanın
-                        value={yapilan.birimAdedi ?? '1'} // Yapilan.birimAdedi yoksa boş bir dize göster
+                        value={yapilan.birimAdedi || ''} // Yapilan.birimAdedi yoksa boş bir dize göster
                         type="number"
                         name="birimAdedi" // Güncellenecek alanın adını belirtin
                         className="bg-my-beyaz border p-2 rounded-md"
@@ -430,7 +430,7 @@ export default function Detay() {
                       <input
                         onChange={(event) => handleChange2(event, index)}
                         placeholder="Birim Fiyatı" // Placeholder olarak açıklayıcı metin kullanın
-                        value={yapilan.birimFiyati ?? '0'} // Yapilan.birimFiyati yoksa boş bir dize göster
+                        value={yapilan.birimFiyati || ''} // Yapilan.birimFiyati yoksa boş bir dize göster
                         type="number"
                         name="birimFiyati" // Güncellenecek alanın adını belirtin
                         className="bg-my-beyaz border p-2 rounded-md"
