@@ -3,8 +3,11 @@ import { useRouter } from 'next/router';
 import Head from "next/head";
 import Link from "next/link";
 import { useLoading } from '../../_app';
+import withAuth from '../../../withAuth';
+import { useAuth } from '../../../auth-context';
 
 export default function Detay() {
+  const { fetchWithAuth } = useAuth();
   const { loading, setLoading } = useLoading();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [detay_id, setDetay_id] = useState(0);
@@ -68,7 +71,7 @@ export default function Detay() {
   async function fetchData(teklif_id) {
     setLoading(true);
     try {
-      const response = await fetch(`http://16.171.148.90:4000/teklif/${teklif_id}`, {
+      const response = await fetchWithAuth(`http://16.171.148.90:4000/teklif/${teklif_id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -108,7 +111,7 @@ export default function Detay() {
   const handleDelete = async (id) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://16.171.148.90:4000/yapilanlar/${id}`, {
+      const response = await fetchWithAuth(`http://16.171.148.90:4000/yapilanlar/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -170,7 +173,7 @@ export default function Detay() {
     };
   
     try {
-      const response = await fetch(`http://16.171.148.90:4000/teklif/${detay_id}`, {
+      const response = await fetchWithAuth(`http://16.171.148.90:4000/teklif/${detay_id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -213,7 +216,7 @@ export default function Detay() {
     }));
   
     try {
-      const response = await fetch(`http://16.171.148.90:4000/teklif/${detay_id}/yapilanlar`, {
+      const response = await fetchWithAuth(`http://16.171.148.90:4000/teklif/${detay_id}/yapilanlar`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -246,6 +249,71 @@ export default function Detay() {
     setYapilanlar([...yapilanlar, yeniYapilan]);
     setLoading(false);
   };
+
+  const handleExcelDownload = async () => {
+    setLoading(true);
+    const dataToSend = {
+        vehicleInfo: {
+            adSoyad,
+            telNo,
+            markaModel,
+            plaka,
+            km,
+            modelYili,
+            sasi,
+            renk,
+            girisTarihi,
+            notlar,
+            adres,
+        },
+        data: yapilanlar.map(item => ({
+            birimAdedi: item.birimAdedi,
+            parcaAdi: item.parcaAdi,
+            birimFiyati: item.birimFiyati,
+            toplamFiyat: item.birimFiyati * item.birimAdedi,
+        })),
+        notes: notlar
+    };
+
+    try {
+        const response = await fetch('http://16.171.148.90:4020/api/excel/download', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dataToSend),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'output.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Excel download error:', error);
+
+        // Hatanın detaylarını loglama
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+            console.error('Response headers:', error.response.headers);
+        } else if (error.request) {
+            console.error('Request data:', error.request);
+        } else {
+            console.error('Error message:', error.message);
+        }
+        console.error('Error config:', error.config);
+    }
+    setLoading(false);
+};
 
   return (
     <>
@@ -310,7 +378,7 @@ export default function Detay() {
             <h2 className="text-2xl font-bold text-my-siyah mb-4">Kart Bilgileri</h2>
             <div className="flex items-center">
               <div className="items-center bg-green-500 p-2 pl-8 pr-8 rounded-full ml-4">
-                <button className="font-semibold text-my-beyaz text-md">Excel</button>
+                <button onClick={handleExcelDownload} className="font-semibold text-my-beyaz text-md">Excel</button>
               </div>
               <div className="items-center bg-yellow-500 p-2 pl-8 pr-8 rounded-full ml-4">
                 <button onClick={handleSaveCardInfo} className="font-semibold text-my-beyaz text-md">Kaydet</button>

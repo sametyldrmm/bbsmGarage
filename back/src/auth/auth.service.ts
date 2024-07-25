@@ -21,20 +21,16 @@ export class AuthService {
   }
 
   async findUserPass(database: AuthDto) {
-    console.log(database.username);
-    console.log(database.password);
-    if (database.username == "" || database.password == "")
-    {
+    if (!database.username || !database.password) {
       return null;
     }
-    const result = await this.databaseRepository.find({ 
-      
+    const result = await this.databaseRepository.find({
       where: { 
         username: database.username, 
         password: database.password
-      } 
+      }
     });
-
+  
     if (result.length > 0) {
       const payload = { username: database.username, sub: result[0].id };
       const token = this.jwtService.sign(payload);
@@ -43,7 +39,7 @@ export class AuthService {
       return { result: false };
     }
   }
-
+  
   async refreshToken(oldToken: string) {
     try {
       const payload = this.jwtService.verify(oldToken, { ignoreExpiration: true });
@@ -52,5 +48,5 @@ export class AuthService {
     } catch (error) {
       throw new Error('Invalid token');
     }
-  }
+  }  
 }

@@ -36,7 +36,7 @@ export default function Home() {
         const data = await response.json();
         if (data.result) {
           login(data.token);
-          router.push('login/kartlar')
+          router.push('login/kartlar'); // login sonrası yönlendirilecek sayfa
         } else {
           alert('Kullanıcı adı veya şifre hatalı! Eğer kaydınız yoksa kayıt ol kısmından bize ulaşabilirsiniz.');
         }

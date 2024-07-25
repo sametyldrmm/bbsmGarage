@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import Head from "next/head";
 import Link from "next/link";
 import { useLoading } from '../_app';
+import withAuth from '../../withAuth';
+import { useAuth } from '../../auth-context';
 
 export default function Teklif() {
+  const { fetchWithAuth } = useAuth();
   const { loading, setLoading } = useLoading();
   const [isOpen, setIsOpen] = useState(false);
   const [teklifler, setTeklifler] = useState([]);
@@ -28,19 +31,20 @@ export default function Teklif() {
     setIsOpen(prevIsOpen => !prevIsOpen);
   };
 
-  const fetchTeklifListesi = () => {
+  const fetchTeklifListesi = async () => {
     setLoading(true);
-    fetch("http://16.171.148.90:4000/teklif", {
-      method: 'GET',
-      redirect: 'follow'
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setTeklifler(data);
-        }
-      })
-      .catch(error => console.log('error', error));
+    try {
+      const response = await fetchWithAuth("http://16.171.148.90:4000/teklif", {
+        method: 'GET',
+        redirect: 'follow'
+      });
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        setTeklifler(data);
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
     setLoading(false);
   };
 
@@ -60,7 +64,7 @@ export default function Teklif() {
     setLoading(true);
     try {
       const deleteRequests = secilenTeklifler.map(teklifId =>
-        fetch(`http://16.171.148.90:4000/teklif/${teklifId}`, { method: 'DELETE' })
+        fetchWithAuth(`http://16.171.148.90:4000/teklif/${teklifId}`, { method: 'DELETE' })
       );
       await Promise.all(deleteRequests);
 
@@ -94,7 +98,7 @@ export default function Teklif() {
     console.log("teklif ekle teklif");
     try {
       const [deleteResponse] = await Promise.all([
-        fetch(`http://16.171.148.90:4000/teklif/${teklif.teklif_id}`, {
+        fetchWithAuth(`http://16.171.148.90:4000/teklif/${teklif.teklif_id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -107,7 +111,7 @@ export default function Teklif() {
       {
           console.log("delete teklif");
           const [postResponse] = await Promise.all([
-            fetch('http://16.171.148.90:4000/card', {
+            fetchWithAuth('http://16.171.148.90:4000/card', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -149,6 +153,97 @@ export default function Teklif() {
       (teklif.girisTarihi?.toString().includes(aramaTerimi))
     );
   });
+
+
+  const handleExcelDownload = async (teklifId) => {
+    setLoading(true);
+
+    const teklif = teklifler.find(t => t.teklif_id === teklifId);
+
+    if (!teklif) {
+        console.error("Seçilen teklif bulunamadı");
+        setLoading(false);
+        return;
+    }
+
+    const dataToSend = {
+        vehicleInfo: {
+            adSoyad: teklif.adSoyad,
+            telNo: teklif.telNo,
+            markaModel: teklif.markaModel,
+            plaka: teklif.plaka,
+            km: teklif.km,
+            modelYili: teklif.modelYili,
+            sasi: teklif.sasi,
+            renk: teklif.renk,
+            girisTarihi: teklif.girisTarihi,
+            notlar: teklif.notlar,
+            adres: teklif.adres,
+        },
+        data: teklif.yapilanlar.map(item => ({
+            birimAdedi: item.birimAdedi,
+            parcaAdi: item.parcaAdi,
+            birimFiyati: item.birimFiyati,
+            toplamFiyat: item.birimFiyati * item.birimAdedi,
+        })),
+        notes: teklif.notlar
+    };
+
+    try {
+        const response = await fetch('http://16.171.148.90:4020/api/excel/download', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dataToSend),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'output.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Excel download error:', error);
+
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+            console.error('Response headers:', error.response.headers);
+        } else if (error.request) {
+            console.error('Request data:', error.request);
+        } else {
+            console.error('Error message:', error.message);
+        }
+        console.error('Error config:', error.config);
+    }
+    setLoading(false);
+};
+
+const secilenTeklifleriIndir = async () => {
+  setLoading(true);
+
+  if (secilenTeklifler.length === 0) {
+      console.error("İndirilecek teklif bulunamadı");
+      setLoading(false);
+      return;
+  }
+
+  // Seçilen tüm teklifleri indir
+  for (const teklifId of secilenTeklifler) {
+      await handleExcelDownload(teklifId);
+  }
+
+  setLoading(false);
+};
 
   return (
     <>
@@ -222,7 +317,7 @@ export default function Teklif() {
                   <button onClick={silSecilenleri} className="font-semibold text-my-beyaz text-md">Seçilenleri Sil</button>
                 </div>
                 <div className="items-center bg-green-500 p-2 pl-4 pr-4 rounded-full ml-4">
-                  <button href="" className="font-semibold text-my-beyaz text-md">Seçilenleri İndir</button>
+                  <button onClick={secilenTeklifleriIndir} className="font-semibold text-my-beyaz text-md">Seçilenleri İndir</button>
                 </div>
 
                 <div className="pr-4 items-center pl-4">
@@ -318,7 +413,7 @@ export default function Teklif() {
                         <a href={DetailPage(teklif.teklif_id)} className="bg-yellow-500 p-2 pl-4 pr-4 rounded-full font-medium text-my-siyah hover:underline">Detay</a>
                       </td>
                       <td className="px-6 py-2 ">
-                        <a href="#" className="bg-green-500 p-2 pl-4 pr-4 rounded-full font-medium text-my-beyaz hover:underline">Excel</a>
+                          <button onClick={() => handleExcelDownload(teklif.teklif_id)} className="bg-green-500 p-2 pl-4 pr-4 rounded-full font-medium text-my-beyaz hover:underline">Excel</button>
                       </td>
                     </tr>
                   ))}

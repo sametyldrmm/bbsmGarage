@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 
 const withAuth = (WrappedComponent) => {
   return (props) => {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const router = useRouter();
 
     useEffect(() => {

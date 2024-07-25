@@ -3,8 +3,11 @@ import { useRouter } from 'next/router';
 import Head from "next/head";
 import Link from "next/link";
 import { useLoading } from '../../_app';
+import withAuth from '../../../withAuth';
+import { useAuth } from '../../../auth-context';
 
 export default function Detay() {
+  const { fetchWithAuth } = useAuth();
   const { loading, setLoading } = useLoading();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [detay_id, setDetay_id] = useState(0);
@@ -68,7 +71,7 @@ export default function Detay() {
   async function fetchData(card_id) {
     setLoading(true);
     try {
-      const response = await fetch(`http://16.171.148.90:4000/card/${card_id}/yapilanlar`, {
+      const response = await fetchWithAuth(`http://16.171.148.90:4000/card/${card_id}/yapilanlar`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -110,7 +113,7 @@ export default function Detay() {
   const handleDelete = async (id) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://16.171.148.90:4000/yapilanlar/${id}`, {
+      const response = await fetchWithAuth(`http://16.171.148.90:4000/yapilanlar/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -172,7 +175,7 @@ export default function Detay() {
     };
 
     try {
-      const response = await fetch(`http://16.171.148.90:4000/card/${detay_id}`, {
+      const response = await fetchWithAuth(`http://16.171.148.90:4000/card/${detay_id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -214,7 +217,7 @@ export default function Detay() {
     }));
 
     try {
-      const response = await fetch(`http://16.171.148.90:4000/card/${detay_id}/yapilanlar`, {
+      const response = await fetchWithAuth(`http://16.171.148.90:4000/card/${detay_id}/yapilanlar`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -249,6 +252,7 @@ export default function Detay() {
   };
 
   const handleExcelDownload = async () => {
+    setLoading(true);
     const dataToSend = {
         vehicleInfo: {
             adSoyad,
@@ -273,7 +277,7 @@ export default function Detay() {
     };
 
     try {
-        const response = await fetch('http://16.171.148.90:4001/api/excel/download', {
+        const response = await fetch('http://16.171.148.90:4020/api/excel/download', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -296,10 +300,21 @@ export default function Detay() {
         window.URL.revokeObjectURL(url);
     } catch (error) {
         console.error('Excel download error:', error);
-    }
-};
 
-  
+        // Hatanın detaylarını loglama
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+            console.error('Response headers:', error.response.headers);
+        } else if (error.request) {
+            console.error('Request data:', error.request);
+        } else {
+            console.error('Error message:', error.message);
+        }
+        console.error('Error config:', error.config);
+    }
+    setLoading(false);
+};
 
   return (
     <>

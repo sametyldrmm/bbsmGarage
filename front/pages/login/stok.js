@@ -3,9 +3,12 @@ import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
 import { useLoading } from '../_app';
+import withAuth from '../../withAuth';
+import { useAuth } from '../../auth-context';
 
 export default function stok() {
-  const { loading, setLoading } = useLoading();
+    const { fetchWithAuth } = useAuth();
+    const { loading, setLoading } = useLoading();
     const [isOpen, setIsOpen] = useState(false);
     const [stokAdi, setStokAdi] = useState('');
     const [adet, setAdet] = useState('');
@@ -37,19 +40,25 @@ export default function stok() {
       redirect: 'follow'
     };
     
-    const fetchStokListesi = () => {
+    const fetchStokListesi = async () => {
       setLoading(true);
-      fetch("http://16.171.148.90:4000/stok", requestOptions)
-          .then(response => response.json())
-          .then(data => {
-              if (Array.isArray(data)) {
-                  setStokListesi(data);
-                  setFilteredStokListesi(data);
-              }
-          })
-          .catch(error => console.log('error', error));
-          setLoading(false);
-      };
+      try {
+          const response = await fetchWithAuth("http://16.171.148.90:4000/stok", {
+              method: 'GET',
+          });
+          if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          if (Array.isArray(data)) {
+              setStokListesi(data);
+              setFilteredStokListesi(data);
+          }
+      } catch (error) {
+          console.error('Veri getirme hatası:', error);
+      }
+      setLoading(false);
+  };
 
       useEffect(() => {
           fetchStokListesi();
@@ -66,7 +75,7 @@ export default function stok() {
           };
 
           try {
-              const response = await fetch('http://16.171.148.90:4000/stok', {
+              const response = await fetchWithAuth('http://16.171.148.90:4000/stok', {
                   method: 'POST',
                   headers: {
                       'Content-Type': 'application/json',
@@ -97,7 +106,7 @@ export default function stok() {
       try {
         // Seçilen her bir stok ID'si için ayrı bir DELETE isteği gönder
         const deleteRequests = selectedStok.map(id =>
-          fetch(`http://16.171.148.90:4000/stok/${id}`, { method: 'DELETE' })
+          fetchWithAuth(`http://16.171.148.90:4000/stok/${id}`, { method: 'DELETE' })
         );
         await Promise.all(deleteRequests);
     

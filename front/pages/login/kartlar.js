@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Head from "next/head";
 import Link from "next/link";
-import Image from "next/image";
 import AnaBilesen from '@/components/AnaBilesen';
-import { data } from 'autoprefixer';
 import { useLoading } from '../_app';
+import withAuth from '../../withAuth';
+import { useAuth } from '../../auth-context';
 
 const Kartlar = () => {
+  const { fetchWithAuth } = useAuth();
   const { loading, setLoading } = useLoading();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isYeniKartEkleModalOpen, setIsYeniKartEkleModalOpen] = useState(false);
@@ -41,6 +42,11 @@ const Kartlar = () => {
 
   const silSecilenleri = async () => {
     setLoading(true);
+    if (secilenKartlar.length === 0) {
+      alert("Silmek için en az bir kart seçmelisiniz.");
+      setLoading(false);
+      return;
+    }
     try {
       const deleteRequests = secilenKartlar.map(kartId =>
         fetch(`http://16.171.148.90:4000/card/${kartId}`, { method: 'DELETE' })
@@ -229,6 +235,99 @@ const Kartlar = () => {
   
     return sortableItems;
   }, [kartlar, sortConfig]);
+
+  const handleExcelDownload = async (kartId) => {
+    setLoading(true);
+
+    const kart = kartlar.find(k => k.card_id === kartId);
+
+    if (!kart) {
+        console.error("Seçilen kart bulunamadı");
+        setLoading(false);
+        return;
+    }
+
+    const dataToSend = {
+        vehicleInfo: {
+            adSoyad: kart.adSoyad,
+            telNo: kart.telNo,
+            markaModel: kart.markaModel,
+            plaka: kart.plaka,
+            km: kart.km,
+            modelYili: kart.modelYili,
+            sasi: kart.sasi,
+            renk: kart.renk,
+            girisTarihi: kart.girisTarihi,
+            notlar: kart.notlar,
+            adres: kart.adres,
+        },
+        data: kart.yapilanlar.map(item => ({
+            birimAdedi: item.birimAdedi,
+            parcaAdi: item.parcaAdi,
+            birimFiyati: item.birimFiyati,
+            toplamFiyat: item.birimFiyati * item.birimAdedi,
+        })),
+        notes: kart.notlar
+    };
+
+    try {
+        const response = await fetch('http://16.171.148.90:4020/api/excel/download', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dataToSend),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'output.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Excel download error:', error);
+
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+            console.error('Response headers:', error.response.headers);
+        } else if (error.request) {
+            console.error('Request data:', error.request);
+        } else {
+            console.error('Error message:', error.message);
+        }
+        console.error('Error config:', error.config);
+    }
+    setLoading(false);
+};
+
+
+const secilenKartlariIndir = async () => {
+  setLoading(true);
+
+  if (secilenKartlar.length === 0) {
+      alert("İndirilecek kart bulunamadı");
+      setLoading(false);
+      return;
+  }
+
+  // Seçilen tüm kartları indir
+  for (const kartId of secilenKartlar) {
+      await handleExcelDownload(kartId);
+  }
+
+  setLoading(false);
+};
+
+
   
 
   return (
@@ -303,7 +402,7 @@ const Kartlar = () => {
                   <button onClick={silSecilenleri} className="font-semibold text-my-beyaz text-md">Seçilenleri Sil</button>
                 </div>
                 <div className="items-center bg-green-500 p-2 pl-4 pr-4 rounded-full ml-4">
-                  <button href="" className="font-semibold text-my-beyaz text-md">Seçilenleri İndir</button>
+                  <button onClick={secilenKartlariIndir} className="font-semibold text-my-beyaz text-md">Seçilenleri İndir</button>
                 </div>
 
                 <div className="items-center bg-my-mavi p-2 pl-4 pr-4 rounded-full ml-4" onClick={toggleYeniKartEkleModal}>
@@ -410,7 +509,7 @@ const Kartlar = () => {
                       <Link href={DetailPage(kart.card_id)} className="bg-yellow-500 p-2 pl-4 pr-4 rounded-full font-medium text-my-siyah hover:underline">Detay</Link>
                     </td>
                     <td className="px-6 py-4 ">
-                      <a href="#" className="bg-green-500 p-2 pl-4 pr-4 rounded-full font-medium text-my-beyaz hover:underline">Excel</a>
+                      <button onClick={() => handleExcelDownload(kart.card_id)} className="bg-green-500 p-2 pl-4 pr-4 rounded-full font-medium text-my-beyaz hover:underline">Excel</button>  
                     </td>
                   </tr>
                 ))}
@@ -424,4 +523,4 @@ const Kartlar = () => {
   );
 };
 
-export default Kartlar;
+export default withAuth(Kartlar);

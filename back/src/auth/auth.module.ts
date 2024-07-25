@@ -6,13 +6,16 @@ import { AuthEntity } from './auth.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([AuthEntity]),
     PassportModule,
     JwtModule.register({
-      secret: 'yourSecretKey', // Güvenli bir gizli anahtar ekleyin
+      secret: process.env.JWT_SECRET, // Çevresel değişkeni kullan
       signOptions: { expiresIn: '3m' },
     }),
   ],
