@@ -34,7 +34,7 @@ export default function Teklif() {
   const fetchTeklifListesi = async () => {
     setLoading(true);
     try {
-      const response = await fetchWithAuth("http://16.171.148.90:4000/teklif", {
+      const response = await fetchWithAuth("http://13.60.28.234:4000/teklif", {
         method: 'GET',
         redirect: 'follow'
       });
@@ -64,7 +64,7 @@ export default function Teklif() {
     setLoading(true);
     try {
       const deleteRequests = secilenTeklifler.map(teklifId =>
-        fetchWithAuth(`http://16.171.148.90:4000/teklif/${teklifId}`, { method: 'DELETE' })
+        fetchWithAuth(`http://13.60.28.234:4000/teklif/${teklifId}`, { method: 'DELETE' })
       );
       await Promise.all(deleteRequests);
 
@@ -98,7 +98,7 @@ export default function Teklif() {
     console.log("teklif ekle teklif");
     try {
       const [deleteResponse] = await Promise.all([
-        fetchWithAuth(`http://16.171.148.90:4000/teklif/${teklif.teklif_id}`, {
+        fetchWithAuth(`http://13.60.28.234:4000/teklif/${teklif.teklif_id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ export default function Teklif() {
       {
           console.log("delete teklif");
           const [postResponse] = await Promise.all([
-            fetchWithAuth('http://16.171.148.90:4000/card', {
+            fetchWithAuth('http://13.60.28.234:4000/card', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -190,7 +190,7 @@ export default function Teklif() {
     };
 
     try {
-        const response = await fetch('http://16.171.148.90:4020/api/excel/download', {
+        const response = await fetch('http://13.60.28.234:4020/api/excel/download', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

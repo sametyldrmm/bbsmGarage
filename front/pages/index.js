@@ -24,7 +24,7 @@ export default function Home() {
     setLoading(true);
     e.preventDefault();
     try {
-      const response = await fetch('http://16.171.148.90:4000/auth/control', {
+      const response = await fetch('http://13.60.28.234:4000/auth/control', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

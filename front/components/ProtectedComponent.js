@@ -7,7 +7,7 @@ const ProtectedComponent = () => {
 
   useEffect(() => {
     const fetchProtectedData = async () => {
-      const response = await fetchWithAuth('http://16.171.148.90:4000/protected');
+      const response = await fetchWithAuth('http://13.60.28.234:4000/protected');
 
       if (response.ok) {
         const data = await response.json();
