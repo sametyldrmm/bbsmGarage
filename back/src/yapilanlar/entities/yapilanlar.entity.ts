@@ -7,11 +7,11 @@ export class YapilanlarEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => CardEntity, card => card.yapilanlar, { nullable: true })
+    @ManyToOne(() => CardEntity, card => card.yapilanlar, { nullable: true , onDelete: 'CASCADE'  })
     @JoinColumn({ name: 'card_id' })
     card: CardEntity;
 
-    @ManyToOne(() => TeklifEntity, teklif => teklif.yapilanlar, { nullable: true })
+    @ManyToOne(() => TeklifEntity, teklif => teklif.yapilanlar, { nullable: true , onDelete: 'CASCADE' })
     @JoinColumn({ name: 'teklif_id' })
     teklif: TeklifEntity;
 

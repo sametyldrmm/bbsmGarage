@@ -14,7 +14,7 @@ import { YapilanlarModule } from './yapilanlar/yapilanlar.module';
 
 let env = new EnvDto();
 
-log(env);
+log(env); 
 
 @Module({
   imports: [

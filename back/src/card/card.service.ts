@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCardDto } from './dto/create-card.dto';
 import { CardEntity } from './entities/card.entity';
 import { Repository } from 'typeorm';
@@ -15,59 +15,59 @@ export class CardService {
     private yapilanlarRepository: Repository<YapilanlarEntity>,
   ) {}
 
-  async updateCardYapilanlar(CreateYapilanlarDto : CreateYapilanlarDto, id : number){
-    let card = await this.databaseRepository.findOne({ where: { card_id: id }, relations: ['yapilanlar'] });
-    
-    let yeniYapilan = new YapilanlarEntity();
-    
-    yeniYapilan.birimAdedi = CreateYapilanlarDto.birimAdedi;
-    yeniYapilan.parcaAdi = CreateYapilanlarDto.parcaAdi;
-    yeniYapilan.birimFiyati = CreateYapilanlarDto.birimFiyati;
-    yeniYapilan.toplamFiyat = CreateYapilanlarDto.toplamFiyat;
-    yeniYapilan.card = card;
-
-    await this.yapilanlarRepository.save(yeniYapilan);
-
-    // Kartı kaydet (gerekirse)
-    // Bu adım kart ile Yapilanlar arasındaki ilişkiyi güncellemek için gerekli
-    return this.databaseRepository.save(card);
-  }
-  
-
-
   async create(createCardDto: CreateCardDto) {
-    let a = null;
     try {
-      console.log(createCardDto);
-  
-      // Kartı oluştur ve kaydet
-      let card = this.databaseRepository.create(createCardDto);
-      let savedCard = await this.databaseRepository.save(card);
-      a = savedCard.card_id;
-      // Eğer yapilanlar varsa işlem yap
+      // CardEntity oluşturuluyor ve veritabanına kaydediliyor
+      const card = await this.databaseRepository.create(createCardDto);
+      const savedCard = await this.databaseRepository.save(card);
+
+      // Yapilanlar ekleniyor
       if (createCardDto.yapilanlar && createCardDto.yapilanlar.length > 0) {
-        // Her bir yapilanlarDto için işlem yap
-        for (const yapilanlarDto of createCardDto.yapilanlar) {
-          // Yapilanları oluştur
-          let yapilanlar = this.yapilanlarRepository.create({
-            ...yapilanlarDto,
-            card: savedCard, // Kart referansını ata
-          });
-          // a = yapilanlar;
-          // Yapilanları kaydet
-          await this.yapilanlarRepository.save(yapilanlar); // belki olur ne return ü istediğine bakılacak
-        }
+        const yapilanlarEntities = createCardDto.yapilanlar.map(dto => {
+          const yapilan = new YapilanlarEntity();
+          yapilan.birimAdedi = dto.birimAdedi;
+          yapilan.parcaAdi = dto.parcaAdi;
+          yapilan.birimFiyati = dto.birimFiyati;
+          yapilan.toplamFiyat = dto.toplamFiyat;
+          yapilan.card = savedCard; // İlişkiyi belirtmek için card referansı ekleniyor
+          return yapilan;
+        });
+
+        await this.yapilanlarRepository.save(yapilanlarEntities);
       }
-  
-      console.log("İşlem başarıyla tamamlandı.");
+
+      return await this.databaseRepository.findOne({ where: { card_id: savedCard.card_id }, relations: ["yapilanlar"] });
     } catch (error) {
-      console.error(error);
-      console.log("Hata oluştu!");
+      throw error;
     }
-    console.log("card:id:", a);
-    // if(a != null)
-    //   return a;
-      return this.databaseRepository.find({where : {"card_id" : a}, relations:["yapilanlar"]});
+  }
+
+  async updateCardYapilanlar(createYapilanlarDtoArray: CreateYapilanlarDto[], card_id: number) {
+    console.log("Gelen Yapilanlar:", createYapilanlarDtoArray);
+
+    let card = await this.databaseRepository.findOne({ where: { card_id }, relations: ['yapilanlar'] });
+
+    if (!card) {
+      throw new NotFoundException(`Card ID: ${card_id} bulunamadı.`);
+    }
+
+    // Create YapilanlarEntity array
+    const yapilanlarEntities: YapilanlarEntity[] = createYapilanlarDtoArray.map(dto => {
+      const yapilan = new YapilanlarEntity();
+      yapilan.birimAdedi = dto.birimAdedi;
+      yapilan.parcaAdi = dto.parcaAdi;
+      yapilan.birimFiyati = dto.birimFiyati;
+      yapilan.toplamFiyat = dto.toplamFiyat;
+      yapilan.card = card; // İlişkiyi belirtmek için card referansı ekleniyor
+      return yapilan;
+    });
+
+    // Kart ile yapılanları ilişkilendiriyoruz
+    card.yapilanlar = yapilanlarEntities;
+
+    await this.databaseRepository.save(card);
+
+    return this.databaseRepository.findOne({ where: { card_id }, relations: ['yapilanlar'] });
   }
 
   findAll() {
@@ -78,57 +78,47 @@ export class CardService {
     return this.databaseRepository.findOne({
       where: { card_id },
       relations: ['yapilanlar'],
-    })
+    });
   }
   
+  async update(card_id: number, updateCardDto: any) {
+    let card = await this.databaseRepository.findOne({ where: { card_id } });
 
-  update(card_id: number, updateCardDto: CardEntity) {
-    // Güncelleme
-    return `This action updates a #${card_id} card`;
+    if (!card) {
+      throw new NotFoundException(`Card ID: ${card_id} bulunamadı.`);
+    }
+
+    // Kart bilgilerini güncelleme
+    for (let key in updateCardDto) {
+      if (updateCardDto.hasOwnProperty(key) && updateCardDto[key] !== undefined) {
+        card[key] = updateCardDto[key];
+      }
+    }
+
+    return this.databaseRepository.save(card);
   }
 
   async removeAll() {
     try {
-      let cards = await this.databaseRepository.find({ relations: ['yapilanlar'] });
-  
+      const cards = await this.databaseRepository.find({ relations: ['yapilanlar'] });
+
       for (const card of cards) {
-        let yapilanlar = card.yapilanlar;
-  
-        if (yapilanlar && yapilanlar.length > 0) {
-          // Yapilanları sil
-          await Promise.all(yapilanlar.map(async (yapilan) => {
-            await this.yapilanlarRepository.delete(yapilan.id);
-          }));
-        }
-  
-        // Kartı sil
-        await this.remove(card.card_id);
+        await this.databaseRepository.remove(card);
       }
-  
+
       console.log("Tüm veriler başarıyla silindi.");
     } catch (error) {
       console.error("Hata oluştu:", error);
     }
   }
   
-  remove(card_id: number) {
-    return this.databaseRepository.delete({ card_id: card_id });
-  }
-
   async removeid(card_id: number) {
-    let cards = await this.databaseRepository.find({ where:{card_id:card_id}, relations: ['yapilanlar'] });
-    for (const card of cards) {
-      let yapilanlar = card.yapilanlar;
-
-      if (yapilanlar && yapilanlar.length > 0) {
-        // Yapilanları sil
-        await Promise.all(yapilanlar.map(async (yapilan) => {
-          await this.yapilanlarRepository.delete(yapilan.id);
-        }));
-      }
+    const card = await this.databaseRepository.findOne({ where: { card_id }, relations: ['yapilanlar'] });
+    if (card) {
+      await this.databaseRepository.remove(card);
+      console.log(`Card with ID ${card_id} and its related records have been removed.`);
+    } else {
+      throw new NotFoundException(`Card with ID ${card_id} not found.`);
     }
-    
-    return this.databaseRepository.delete({ card_id: card_id });
   }
-
 }

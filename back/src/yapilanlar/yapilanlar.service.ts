@@ -28,7 +28,33 @@ export class YapilanlarService {
     }
     return yapilanlar;
   }
-  
+
+  async updateYapilanlar(card_id: number, updateYapilanlarDto: CreateYapilanlarDto[]) {
+    let yapilanlarEntities = await this.databaseRepository.find({ where: { card: { card_id } } });
+
+    // Mevcut yapılanları güncelleme veya yeni yapılanları ekleme
+    for (const yapilanDto of updateYapilanlarDto) {
+      if (yapilanDto.id) {
+        // Var olan yapılanları güncelle
+        let yapilan = await this.databaseRepository.findOne({ where: { id: yapilanDto.id } });
+        if (yapilan) {
+          for (let key in yapilanDto) {
+            if (yapilanDto.hasOwnProperty(key) && yapilanDto[key] !== undefined) {
+              yapilan[key] = yapilanDto[key];
+            }
+          }
+          await this.databaseRepository.save(yapilan);
+        }
+      } else {
+        // Yeni yapılanları ekle
+        let yeniYapilan = this.databaseRepository.create({
+          ...yapilanDto,
+          card: { card_id },
+        });
+        await this.databaseRepository.save(yeniYapilan);
+      }
+    }
+  }
 
   async update(id: number, updateYapilanlarDto: UpdateYapilanlarDto) {
     let yapilanlar = await this.findOne(id);
