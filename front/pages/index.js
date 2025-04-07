@@ -1,76 +1,111 @@
-import React, { useState } from 'react';
-import { useRouter } from 'next/router';
-import Head from "next/head";
-import Link from "next/link";
-import { useAuth } from '../auth-context';
-import { useLoading } from './_app';
+import Head from "next/head"
+import Link from "next/link"
+import Header from '../components/header';
+import Footer from '../components/footer';
 
 export default function Home() {
-  const { loading, setLoading } = useLoading();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const { login } = useAuth();
-  const router = useRouter();
+  return <>
+    <Head>
+      <title>S&Y Otomotiv - Maslak</title>
+      <link rel="icon" href="/syoto.ico" />
+    </Head>
 
-  const handleUsernameChange = (e) => {
-    setUsername(e.target.value);
-  };
+    <Header />
 
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
+    {/* Hero Section */}
+    <div className="relative h-screen pt-16">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/50 z-10"></div>
+      <img 
+        src="/images/hero-bg.jpg" 
+        alt="S&Y Otomotiv Hero" 
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      <div className="relative z-20 flex flex-col items-center justify-center h-full text-white px-4">
+        <h1 className="flex text-5xl md:text-7xl font-bold mb-6 text-center tracking-tight">S<p className=" text-3xl items-end pl-1 -pr-1 translate-y-5"> & </p>Y OTOMOTİV<p className="text-xl items-end pl-1 -pr-1 translate-y-8">MASLAK</p></h1>
+        <p className="text-2xl md:text-3xl mb-10 text-center font-light tracking-wide">Maslak'ın En Güvenilir Servisi</p>
+        <Link 
+          href="/bizeulasin" 
+          className="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-10 rounded-full transition duration-300 transform hover:scale-105 shadow-lg"
+        >
+          Hemen Randevu Alın
+        </Link>
+      </div>
+    </div>
 
-  const handleSubmit = async (e) => {
-    setLoading(true);
-    e.preventDefault();
-    try {
-      const response = await fetch('http://13.60.28.234:4000/auth/control', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.result) {
-          login(data.token);
-          router.push('login/kartlar'); // login sonrası yönlendirilecek sayfa
-        } else {
-          alert('Kullanıcı adı veya şifre hatalı! Eğer kaydınız yoksa kayıt ol kısmından bize ulaşabilirsiniz.');
-        }
-      } else {
-        alert('Giriş başarısız');
-      }
-    } catch (error) {
-      console.error('Giriş sırasında bir hata oluştu', error);
-    }
-    setLoading(false);
-  };
-
-  return (
-    <>
-      <Head>
-        <title>BBSM Garage</title>
-        <link rel="icon" href="/BBSM.ico" /> {"/public/BBSM.ico"}
-      </Head>
-      <div className="bg-my-home bg-cover bg-center w-full h-200">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <form onSubmit={handleSubmit} className="bg-my-siyah border-2 border-my-4b4b4bgri bg-opacity-50 backdrop-blur-sm p-8 rounded-3xl shadow-lg max-w-sm w-full flex flex-col items-center justify-center">
-            <h1 className="font-extrabold text-transparent text-3xl bg-clip-text bg-gradient-to-r from-blue-400 via-blue-900 to-red-600">Hoş Geldiniz!</h1>
-            <h2 className="text-2xl font-bold text-my-beyaz mb-4 text-center">Giriş Yapınız</h2>
-            <p className="w-full font-semibold p-2 text-my-beyaz text-left">Kullanıcı Adı</p>
-            <input className="w-full p-2 mb-4 rounded-xl border border-my-açıkgri" type="text" placeholder="Kullanıcı Adı" value={username} onChange={handleUsernameChange} />
-            <p className="w-full font-semibold p-2 text-my-beyaz text-left">Şifre</p>
-            <input className="w-full p-2 mb-6 rounded-xl border border-my-açıkgri" type="password" placeholder="Şifre" value={password} onChange={handlePasswordChange} />
-            <div className="w-full text-center flex gap-4">
-              <Link href="/kayit" className="w-1/2 p-2 mr-2 font-semibold rounded-xl border-2 border-my-4b4b4bgri bg-my-siyah transition duration-500 ease-in-out hover:bg-my-4b4b4bgri"><p className="font-extrabold text-transparent text-lg bg-clip-text bg-gradient-to-r from-my-beyaz to-my-açıkgri">Kayıt Ol</p></Link>
-              <button type="submit" className="w-1/2 p-2 ml-2 font-semibold rounded-xl border-2 border-my-4b4b4bgri bg-my-siyah text-my-beyaz transition duration-500 ease-in-out hover:bg-my-4b4b4bgri"><p className="font-extrabold text-transparent text-lg bg-clip-text bg-gradient-to-r from-blue-400 to-blue-900">Giriş Yap</p></button>
-            </div>
-          </form>
+    {/* Services Section */}
+    <div className="bg-gray-100 py-16">
+      <div className="container mx-auto px-4">
+        <h2 className="text-3xl font-bold text-center mb-12">Hizmetlerimiz</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <div className="text-red-600 text-4xl mb-4">🔧</div>
+            <h3 className="text-xl font-bold mb-2">Periyodik Bakım</h3>
+            <p className="text-gray-600">Aracınızın düzenli bakımını uzman ekibimizle gerçekleştiriyoruz.</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <div className="text-red-600 text-4xl mb-4">🚗</div>
+            <h3 className="text-xl font-bold mb-2">Motor Tamiri</h3>
+            <p className="text-gray-600">Motor arızalarında profesyonel çözümler sunuyoruz.</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <div className="text-red-600 text-4xl mb-4">🔍</div>
+            <h3 className="text-xl font-bold mb-2">Oto Elektrik</h3>
+            <p className="text-gray-600">Elektrik sistemlerinde uzman kadromuzla hizmetinizdeyiz.</p>
+          </div>
         </div>
       </div>
-    </>
-  );
+    </div>
+
+    {/* About Section */}
+    <div className="py-16 bg-white">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-3xl font-bold mb-6">Neden S&Y Otomotiv?</h2>
+            <ul className="space-y-4">
+              <li className="flex items-start">
+                <span className="text-red-600 mr-2">✓</span>
+                <span>30+ yılı aşkın sektör deneyimi ve uzman teknik kadro</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-red-600 mr-2">✓</span>
+                <span>En son teknoloji ekipmanlar ve modern servis altyapısı</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-red-600 mr-2">✓</span>
+                <span>Hızlı, güvenilir ve şeffaf servis anlayışı</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-red-600 mr-2">✓</span>
+                <span>Rekabetçi fiyatlar ve müşteri memnuniyeti garantisi</span>
+              </li>
+            </ul>
+          </div>
+          <div className="relative h-96">
+            <img 
+              src="/images/workshop.jpg" 
+              alt="S&Y Otomotiv Atölye" 
+              className="absolute inset-0 w-full h-full object-cover rounded-lg shadow-lg"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Contact CTA */}
+    <div className="bg-red-600 text-white py-16">
+      <div className="container mx-auto px-4 text-center">
+        <h2 className="text-3xl font-bold mb-4">Aracınız İçin Profesyonel Çözüm</h2>
+        <p className="text-xl mb-8">Hemen randevu alın, aracınızı güvenle teslim edin.</p>
+        <Link 
+          href="/bizeulasin" 
+          className="bg-white text-red-600 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition duration-300"
+        >
+          Randevu Al
+        </Link>
+      </div>
+    </div>
+
+    <Footer />
+  </>
 }
